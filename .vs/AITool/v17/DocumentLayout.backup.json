@@ -1,0 +1,134 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\AITool\\AITool\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A3D86B35-D732-41C1-8219-4DE3A8D35696}|BuildingBlock\\BuildingBlock.csproj|e:\\aitool\\aitool\\buildingblock\\buildingblock.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{A3D86B35-D732-41C1-8219-4DE3A8D35696}|BuildingBlock\\BuildingBlock.csproj|solutionrelative:buildingblock\\buildingblock.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1193DF68-0300-4675-9A72-FB9137CE047C}|Users.API\\Users.API.csproj|e:\\aitool\\aitool\\users.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1193DF68-0300-4675-9A72-FB9137CE047C}|Users.API\\Users.API.csproj|solutionrelative:users.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A3D86B35-D732-41C1-8219-4DE3A8D35696}|BuildingBlock\\BuildingBlock.csproj|e:\\aitool\\aitool\\buildingblock\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A3D86B35-D732-41C1-8219-4DE3A8D35696}|BuildingBlock\\BuildingBlock.csproj|solutionrelative:buildingblock\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CFF0D980-BA8C-40FD-8C70-CFFA184849E0}|AITool\\AITool.csproj|e:\\aitool\\aitool\\aitool\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CFF0D980-BA8C-40FD-8C70-CFFA184849E0}|AITool\\AITool.csproj|solutionrelative:aitool\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 186,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "BuildingBlock",
+              "DocumentMoniker": "E:\\AITool\\AITool\\BuildingBlock\\BuildingBlock.csproj",
+              "RelativeDocumentMoniker": "BuildingBlock\\BuildingBlock.csproj",
+              "ToolTip": "E:\\AITool\\AITool\\BuildingBlock\\BuildingBlock.csproj",
+              "RelativeToolTip": "BuildingBlock\\BuildingBlock.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-06-06T08:45:52.318Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "E:\\AITool\\AITool\\Users.API\\Program.cs",
+              "RelativeDocumentMoniker": "Users.API\\Program.cs",
+              "ToolTip": "E:\\AITool\\AITool\\Users.API\\Program.cs",
+              "RelativeToolTip": "Users.API\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-06T08:45:02.611Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "E:\\AITool\\AITool\\BuildingBlock\\Class1.cs",
+              "RelativeDocumentMoniker": "BuildingBlock\\Class1.cs",
+              "ToolTip": "E:\\AITool\\AITool\\BuildingBlock\\Class1.cs",
+              "RelativeToolTip": "BuildingBlock\\Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-06T08:09:35.341Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "E:\\AITool\\AITool\\AITool\\Program.cs",
+              "RelativeDocumentMoniker": "AITool\\Program.cs",
+              "ToolTip": "E:\\AITool\\AITool\\AITool\\Program.cs",
+              "RelativeToolTip": "AITool\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-04T16:13:10.272Z",
+              "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedWidth": 256,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:10:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:8:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0504ff91-9d61-11d0-a794-00a0c9110051}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:11:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{28836128-fc2c-11d2-a433-00c04f72d18a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{ecb7191a-597b-41f5-9843-03a4cf275dde}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{004be353-6879-467c-9d1e-9ac23cdf6d49}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "07oWF0NjItM=",
+  "success": true,
+  "projectFilePath": "E:\\AITool\\AITool\\Users.API\\Users.API.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Admin\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.21.0\\microsoft.visualstudio.azure.containers.tools.targets.1.21.0.nupkg.sha512"
+  ],
+  "logs": []
+}
