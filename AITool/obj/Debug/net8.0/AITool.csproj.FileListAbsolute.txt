@@ -12,3 +12,4 @@ E:\AITool\AITool\AITool\obj\Debug\net8.0\refint\AITool.dll
 E:\AITool\AITool\AITool\obj\Debug\net8.0\AITool.pdb
 E:\AITool\AITool\AITool\obj\Debug\net8.0\AITool.genruntimeconfig.cache
 E:\AITool\AITool\AITool\obj\Debug\net8.0\ref\AITool.dll
+E:\AITool\AITool\AITool\obj\Debug\net8.0\AITool.sourcelink.json
