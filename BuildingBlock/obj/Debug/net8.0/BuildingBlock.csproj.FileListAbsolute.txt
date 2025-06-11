@@ -6,6 +6,7 @@ E:\AITool\AITool\BuildingBlock\obj\Debug\net8.0\BuildingBlock.GeneratedMSBuildEd
 E:\AITool\AITool\BuildingBlock\obj\Debug\net8.0\BuildingBlock.AssemblyInfoInputs.cache
 E:\AITool\AITool\BuildingBlock\obj\Debug\net8.0\BuildingBlock.AssemblyInfo.cs
 E:\AITool\AITool\BuildingBlock\obj\Debug\net8.0\BuildingBlock.csproj.CoreCompileInputs.cache
+E:\AITool\AITool\BuildingBlock\obj\Debug\net8.0\BuildingBlock.sourcelink.json
 E:\AITool\AITool\BuildingBlock\obj\Debug\net8.0\BuildingBlock.dll
 E:\AITool\AITool\BuildingBlock\obj\Debug\net8.0\refint\BuildingBlock.dll
 E:\AITool\AITool\BuildingBlock\obj\Debug\net8.0\BuildingBlock.pdb
