@@ -2799,7 +2799,7 @@
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
           "BCrypt.Net-Next": "4.0.3",
-          "FluentValidation": "11.9.0",
+          "FluentValidation": "11.9.1",
           "MediatR": "12.2.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.0",
           "Microsoft.EntityFrameworkCore": "8.0.0",
@@ -8295,9 +8295,6 @@
           "projectReferences": {
             "E:\\AITool\\AITool\\BuildingBlock\\BuildingBlock.csproj": {
               "projectPath": "E:\\AITool\\AITool\\BuildingBlock\\BuildingBlock.csproj"
-            },
-            "E:\\AITool\\AITool\\Users.Abstraction\\Users.Domain.csproj": {
-              "projectPath": "E:\\AITool\\AITool\\Users.Abstraction\\Users.Domain.csproj"
             },
             "E:\\AITool\\AITool\\Users.Application\\Users.Application.csproj": {
               "projectPath": "E:\\AITool\\AITool\\Users.Application\\Users.Application.csproj"

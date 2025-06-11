@@ -13,7 +13,9 @@ namespace Users.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
         {
-            services.AddTransient<IPasswordHasher, BCryptPasswordHasher>();
+            services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+            services.AddScoped<IJwtService, JwtService>();
+
             return services;
         }
     }
