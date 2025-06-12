@@ -32,7 +32,7 @@ public class UserLoginEndpoints : ICarterModule
 
             return Results.Ok(user.Token);
         })
-        .WithName("Login");
+        .WithName("LoginUser");
     }
 
 
