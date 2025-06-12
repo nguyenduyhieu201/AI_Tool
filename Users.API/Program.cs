@@ -114,6 +114,5 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapCarter();
-app.MapUserLoginEndpoints();
 
 app.Run();

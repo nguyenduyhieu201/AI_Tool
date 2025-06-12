@@ -8,12 +8,13 @@ using System.Text;
 using Users.Domain.Models;
 using MediatR;
 using Users.Application.Users.Commands.Login;
+using Carter;
 
 namespace Users.API.Endpoints;
 
-public static class UserLoginEndpoints
+public class UserLoginEndpoints : ICarterModule
 {
-    public static void MapUserLoginEndpoints(this IEndpointRouteBuilder app)
+    public void AddRoutes(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/auth")
             .WithTags("Authentication");
@@ -33,6 +34,7 @@ public static class UserLoginEndpoints
         })
         .WithName("Login");
     }
+
 
 
 } 
