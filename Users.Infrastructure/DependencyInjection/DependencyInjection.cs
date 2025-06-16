@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Users.Application.Contracts.Security;
 using Users.Infrastructure.Security;
+using Users.Infrastructure.Security.ExternalAuth.Google;
 
 namespace Users.Infrastructure.DependencyInjection
 {
@@ -15,6 +16,8 @@ namespace Users.Infrastructure.DependencyInjection
         {
             services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
             services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+            services.AddHttpClient<GoogleAuthService>();
 
             return services;
         }
