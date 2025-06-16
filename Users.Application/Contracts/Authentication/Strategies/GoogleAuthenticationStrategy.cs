@@ -129,15 +129,16 @@ namespace Users.Application.Contracts.Authentication.Strategies
                 return user;
             }
 
-            //user = User.Create()
-            //{
-            //    Email = email,
-            //    FirstName = firstName,
-            //    LastName = lastName,
-            //    IsActive = true,
-            //    CreatedAt = DateTime.UtcNow,
-            //    ExternalProvider = provider
-            //};
+            user = User.Create
+            (
+                firstName,
+                lastName,
+                email,
+                string.Empty,
+                string.Empty,
+                provider
+               
+            );
 
             await _userRepository.AddAsync(user);
             return user;
