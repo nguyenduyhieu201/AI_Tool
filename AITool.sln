@@ -24,6 +24,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API.Gateways", "API.Gateways", "{D1708DAE-409D-4BED-B182-50712E2A6813}"
+	ProjectSection(SolutionItems) = preProject
+		API.Gateways\.gitkeep = API.Gateways\.gitkeep
+		Dockerfile.txt = Dockerfile.txt
+		API.Gateways\nginx.conf = API.Gateways\nginx.conf
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

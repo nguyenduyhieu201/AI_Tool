@@ -80,7 +80,8 @@ namespace Users.Domain.Models
         public void Update(
             string? firstName = null,
             string? lastName = null,
-            string? phoneNumber = null)
+            string? phoneNumber = null,
+            string? email = null)
         {
             if (firstName != null)
                 FirstName = firstName;
@@ -88,6 +89,10 @@ namespace Users.Domain.Models
                 LastName = lastName;
             if (phoneNumber != null)
                 PhoneNumber = phoneNumber;
+            if (email != null)
+            {
+                Email = email.ToLowerInvariant();
+            }
 
             LastModified = DateTime.UtcNow;
         }

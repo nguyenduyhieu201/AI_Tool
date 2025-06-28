@@ -12,13 +12,13 @@ namespace Users.API.Endpoints
         {
             app.MapPut("/api/users/{id}", async (Guid id, [FromBody] UpdateUserRequest request, ISender sender) =>
             {
-                var command = new UpdateUserCommand(id, request.FirstName, request.LastName, request.Email);
+                var command = new UpdateUserCommand(id, request.FirstName, request.LastName, request.Email, request.PhoneNumber);
                 var result = await sender.Send(command);
-                if (result.IsSuccess)
+                if(result == Guid.Empty)
                 {
-                    return Results.Ok(result.Value);
+                    throw new Exception("Failed to update userr");
                 }
-                return Results.BadRequest(result.Error);
+                return Results.Ok(result);
             }); 
         }
     }
