@@ -24,4 +24,8 @@
     <ProjectReference Include="..\Users.Application\Users.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Security\Jwt\" />
+  </ItemGroup>
+
 </Project>

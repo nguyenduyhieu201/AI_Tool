@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Users.Application.Contracts.Repositories;
 using Users.Application.Contracts.Security;
+using Users.Infrastructure.Repositories;
 using Users.Infrastructure.Security;
 using Users.Infrastructure.Security.ExternalAuth.Facebook;
 using Users.Infrastructure.Security.ExternalAuth.Google;
@@ -19,6 +21,7 @@ namespace Users.Infrastructure.DependencyInjection
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IGoogleAuthService, GoogleAuthService>();
             services.AddScoped<IFacebookAuthService, FacebookAuthService>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddHttpClient<GoogleAuthService>();
 
             return services;

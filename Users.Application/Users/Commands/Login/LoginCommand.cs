@@ -6,12 +6,14 @@ using FluentValidation;
 using Users.Application.Contracts.Repositories;
 using Users.Application.Contracts.Security;
 using Users.Domain.Models;
+using RefToken = Users.Domain.Models.RefreshToken;
 
 namespace Users.Application.Users.Commands.Login
 {
     public record LoginCommand(
         string Email,
-        string Password) : ICommand<LoginResponseDto>;
+        string Password, 
+        string IpAddress) : ICommand<LoginResponseDto>;
 
     public class LoginCommandValidator : AbstractValidator<LoginCommand>
     {
@@ -34,19 +36,24 @@ namespace Users.Application.Users.Commands.Login
         string FirstName,
         string LastName,
         string Email,
-        string Token);
+        string AccessToken,
+        string RefreshToken,
+        DateTime ExpiresAt);
 
     public class LoginCommandHandler : ICommandHandler<LoginCommand, LoginResponseDto>
     {
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtService _jwtService;
 
         public LoginCommandHandler(
+            IRefreshTokenRepository refreshTokenRepository,
             IUserRepository userRepository,
             IPasswordHasher passwordHasher,
             IJwtService jwtService)
         {
+            _refreshTokenRepository = refreshTokenRepository ?? throw new ArgumentNullException(nameof(refreshTokenRepository));
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
             _jwtService = jwtService ?? throw new ArgumentNullException(nameof(jwtService));
@@ -61,13 +68,24 @@ namespace Users.Application.Users.Commands.Login
             }
 
             var token = _jwtService.GenerateToken(user);
+            var refreshToken = _jwtService.GenerateRefreshToken();
+
+            // Create and save refresh token
+            var refreshTokenEntity = RefToken.Create(
+                refreshToken,
+                DateTime.UtcNow.AddDays(7),
+                user.Id,
+                request.IpAddress
+            );
 
             return new LoginResponseDto(
                 user.Id,
                 user.FirstName,
                 user.LastName,
                 user.Email,
-                token);
+                token,
+                refreshToken,
+                refreshTokenEntity.ExpiresAt);
         }
 
         private async Task<User?> ValidateAsync(string email, string password, CancellationToken cancellationToken)

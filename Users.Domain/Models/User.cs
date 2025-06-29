@@ -15,7 +15,10 @@ namespace Users.Domain.Models
         public string PhoneNumber { get; private set; } = string.Empty;
         public string Provider { get; private set; } = "Local"; // Local provider
         public bool IsActive { get; private set; }
-        
+
+        // Navigation property for RefreshTokens
+        public ICollection<RefreshToken> RefreshTokens { get; private set; } = new List<RefreshToken>();
+
         public static User Create(
             string firstName,
             string lastName,
@@ -117,5 +120,23 @@ namespace Users.Domain.Models
             PasswordHash = newPasswordHash;
             LastModified = DateTime.UtcNow;
         }
+
+
+        public void AddRefreshToken(RefreshToken refreshToken)
+        {
+            if (refreshToken == null)
+                throw new ArgumentNullException(nameof(refreshToken));
+
+            RefreshTokens.Add(refreshToken);
+        }
+
+        public void RevokeAllRefreshTokens(string revokedByIp, string reason = "Revoked by user")
+        {
+            foreach (var refreshToken in RefreshTokens.Where(rt => rt.IsActive))
+            {
+                refreshToken.Revoke(revokedByIp, reason);
+            }
+        }
+
     }
 }
