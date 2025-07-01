@@ -30,9 +30,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=UsersDB;User Id=sa;Password=SwN12345678;TrustServerCertificate=true
-      - JWT__SecretKey=your-super-secret-jwt-key-here-make-it-long-and-secure
-      - JWT__Issuer=your-app-issuer
-      - JWT__Audience=your-app-audience
+      - JWT__SecretKey=T6pXe2$h92k!zMB*53Nla9Dm%qF^ywCR
+      - JWT__Issuer=YourIssuer
+      - JWT__Audience=YourAudience
       - JWT__ExpirationMinutes=60
       - Google__ClientId=your-google-client-id
       - Google__ClientSecret=your-google-client-secret
