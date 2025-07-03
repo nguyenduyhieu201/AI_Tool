@@ -17,7 +17,7 @@ namespace Users.API.Endpoints
                 [FromBody] ThirdPartyLoginRequest request,
                 ISender sender) =>
             {
-                var result = await sender.Send(new LoginWithGoogleCommand(request.Token));
+                var result = await sender.Send(new LoginWithGoogleCommand(request.Token, request.IpAddress));
                 return Results.Ok(result);
             })
             .WithName("LoginWithGoogle")
@@ -29,7 +29,7 @@ namespace Users.API.Endpoints
                 [FromBody] ThirdPartyLoginRequest request,
                 ISender sender) =>
             {
-                var result = await sender.Send(new LoginWithFacebookCommand(request.Token));
+                var result = await sender.Send(new LoginWithFacebookCommand(request.Token, request.IpAddress));
                 return Results.Ok(result);
             })
             .WithName("LoginWithFacebook")

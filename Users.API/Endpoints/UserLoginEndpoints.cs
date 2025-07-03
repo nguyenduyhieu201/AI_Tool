@@ -24,13 +24,13 @@ public class UserLoginEndpoints : ICarterModule
             IConfiguration configuration,
             ISender sender) =>
         {
-            var user = await sender.Send(new LoginCommand(request.Username, request.Password));
+            var user = await sender.Send(new LoginCommand(request.Username, request.Password, request.IpAddress));
             if (user == null)
             {
                 return Results.Unauthorized();
             }
 
-            return Results.Ok(user.Token);
+            return Results.Ok(user.AccessToken);
         })
         .WithName("LoginUser");
     }

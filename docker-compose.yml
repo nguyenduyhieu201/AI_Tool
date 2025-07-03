@@ -14,11 +14,11 @@ services:
       - sqlserver_data:/var/opt/mssql
     networks:
       - backend
-    healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SwN12345678 -Q 'SELECT 1'"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    # healthcheck:
+    #   test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SwN12345678 -Q 'SELECT 1'"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
 
   # Users API Service
   usersapi:
@@ -39,8 +39,9 @@ services:
       - Facebook__AppId=your-facebook-app-id
       - Facebook__AppSecret=your-facebook-app-secret
     depends_on:
-      sqlserver:
-        condition: service_healthy
+      - sqlserver
+      # :
+      #   condition: service_healthy
     networks:
       - backend
     volumes:
@@ -51,7 +52,7 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
+      - "81:80"
       - "443:443"
     volumes:
       - ./API.Gateways/nginx.conf:/etc/nginx/conf.d/default.conf:ro
