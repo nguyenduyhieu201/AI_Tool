@@ -15,6 +15,7 @@ using Users.Infrastructure.Security;
 using Users.API.Endpoints;
 using BuildingBlock.Behavior;
 using Users.Application.Users.Commands.Login;
+using BuildingBlock.Exceptions.Handler;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 var assembly = typeof(Program).Assembly;
 builder.Services.AddCarter();
+
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
+
 builder.Services.AddMediatR(config =>
 {
     config.RegisterServicesFromAssembly(assembly);
@@ -113,5 +118,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapCarter();
+
+app.UseExceptionHandler(options => { });
 
 app.Run();

@@ -77,6 +77,8 @@ namespace Users.Application.Users.Commands.Login
                 user.Id,
                 request.IpAddress
             );
+            await _refreshTokenRepository.AddAsync(refreshTokenEntity, cancellationToken);
+
 
             return new LoginResponseDto(
                 user.Id,
