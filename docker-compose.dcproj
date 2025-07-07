@@ -1,0 +1,11 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(VSToolsPath)\Docker\Microsoft.Docker.Props" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8D8A437A-9A49-46B6-B3BD-2C7B6FA64A7D}</ProjectGuid>
+    <DockerTargetOS>Linux</DockerTargetOS>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="Services\Users\Users.API\Users.API.csproj" />
+  </ItemGroup>
+  <Import Project="$(VSToolsPath)\Docker\Microsoft.Docker.targets" />
+</Project>
