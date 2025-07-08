@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API.Gateways", "API.Gateway
 		API.Gateways\nginx.conf = API.Gateways\nginx.conf
 	EndProjectSection
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{93B232C8-AD57-470D-9D16-20CAB9CD6BAE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{C8EFA6BA-9894-455F-8659-B818883FA68F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8EFA6BA-9894-455F-8659-B818883FA68F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8EFA6BA-9894-455F-8659-B818883FA68F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93B232C8-AD57-470D-9D16-20CAB9CD6BAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93B232C8-AD57-470D-9D16-20CAB9CD6BAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93B232C8-AD57-470D-9D16-20CAB9CD6BAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93B232C8-AD57-470D-9D16-20CAB9CD6BAE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
