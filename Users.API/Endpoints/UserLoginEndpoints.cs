@@ -16,7 +16,7 @@ public class UserLoginEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/auth")
+        var group = app.MapGroup("/api/user")
             .WithTags("Authentication");
 
         group.MapPost("/login", async (

@@ -1,0 +1,134 @@
+@page "/login"
+@using System.Net.Http.Json
+@using System.ComponentModel.DataAnnotations
+@using ChatGPTTool.Services
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Navigation
+@inject IIPService IPService
+@inject IJSRuntime JS
+@inject ProtectedSessionStorage SessionStorage
+@inject IAuthService AuthService
+
+<h3>Đăng nhập</h3>
+
+<IPInfoDisplay />
+
+<div class="card p-4" style="max-width:400px;margin:auto;">
+    <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label>Email</label>
+            <InputText class="form-control" @bind-Value="loginModel.Email" />
+        </div>
+        <div class="mb-3">
+            <label>Mật khẩu</label>
+            <InputText class="form-control" @bind-Value="loginModel.Password" type="password" />
+        </div>
+        <button class="btn btn-primary w-100" type="submit" disabled="@isLoading">Đăng nhập</button>
+    </EditForm>
+    <div class="text-center my-3">Hoặc</div>
+    <button class="btn btn-danger w-100" @onclick="LoginWithGoogle" disabled="@isLoading">
+        <i class="oi oi-account-login"></i> Đăng nhập với Google
+    </button>
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mt-3">@errorMessage</div>
+    }
+</div>
+
+@code {
+
+    private LoginModel loginModel = new();
+    private bool isLoading = false;
+    private string? errorMessage;
+    private ClientInfo? clientInfo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Lấy thông tin client khi component khởi tạo
+        await GetClientInfo();
+    }
+
+    private async Task GetClientInfo()
+    {
+        try
+        {
+            clientInfo = await IPService.GetClientInfoAsync();
+            Console.WriteLine($"Client IP: {clientInfo.IP}");
+            Console.WriteLine($"User Agent: {clientInfo.UserAgent}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Không thể lấy thông tin client: {ex.Message}");
+            clientInfo = new ClientInfo { IP = "unknown" };
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            var httpClient = HttpClientFactory.CreateClient("API");
+
+            // Tạo request data với IP và thông tin client
+            var requestData = new
+            {
+                Username = loginModel.Email,
+                Password = loginModel.Password,
+                IpAddress = clientInfo?.IP ?? "unknown",
+
+            };
+
+            var response = await httpClient.PostAsJsonAsync("/api/user/login", requestData);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var raw = await response.Content.ReadAsStringAsync();
+                // raw == "\"eyJhbGci…\"" (note the extra quotes)
+                var token = raw.Trim('"');   // remove the JSON-string wrapping quotes
+                                             // then:
+                var loginResult = new LoginResponse { AccessToken = token };
+
+                await AuthService.SignInWithTokenAsync(token);
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Đăng nhập thất bại: {errorContent}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi: {ex.Message}";
+        }
+        isLoading = false;
+    }
+
+    private void LoginWithGoogle()
+    {
+        // Chuyển hướng đến endpoint Google OAuth của backend
+        Navigation.NavigateTo("/api/user/login/google", forceLoad: true);
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Email không được để trống")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Mật khẩu không được để trống")]
+        public string Password { get; set; } = string.Empty;
+    }
+
+    public class LoginResponse
+    {
+        public string AccessToken { get; set; } = string.Empty;
+        // public string RefreshToken { get; set; } = string.Empty;
+        // public DateTime ExpiresAt { get; set; }
+        // public string ClientIP { get; set; } = string.Empty;
+    }
+} 

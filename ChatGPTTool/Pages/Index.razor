@@ -1,0 +1,41 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage sessionStorage
+@inject NavigationManager Navigation
+
+<PageTitle>Index</PageTitle>
+
+@if (!checkedToken)
+{
+    <p>Đang kiểm tra đăng nhập...</p>
+}
+else if (!hasToken)
+{
+    <!-- Sẽ redirect, không hiển thị gì -->
+}
+else
+{
+    <h1>Hello, world!</h1>
+}
+
+@code {
+    private bool checkedToken = false;
+    private bool hasToken = false;
+    private bool _tokenCheckedOnce = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_tokenCheckedOnce)
+        {
+            _tokenCheckedOnce = true;
+            var result = await sessionStorage.GetAsync<string>("jwt_token");
+            hasToken = result.Success && !string.IsNullOrEmpty(result.Value);
+            checkedToken = true;
+            StateHasChanged();
+            if (!hasToken)
+            {
+                Navigation.NavigateTo("/login", true);
+            }
+        }
+    }
+}

@@ -1,0 +1,271 @@
+@page "/profile"
+@using ChatGPTTool.Services
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject ProtectedSessionStorage SessionStorage
+@inject IHttpClientFactory HttpClientFactory
+
+<PageTitle>Thông tin cá nhân - ChatGPTTool</PageTitle>
+
+@if (!isAuthenticated)
+{
+    <div class="alert alert-warning">
+        <span class="oi oi-warning" aria-hidden="true"></span>
+        Bạn cần đăng nhập để xem trang này.
+    </div>
+}
+else if (currentUser == null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Đang tải...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <UserProfile currentUser="currentUser" />
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <span class="oi oi-pencil" aria-hidden="true"></span>
+                            Cập nhật thông tin
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <EditForm Model="updateModel" OnValidSubmit="HandleUpdateProfile">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="text-danger" />
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Email (không thể thay đổi)</label>
+                                <input class="form-control" value="@currentUser.Email" readonly />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Tên hiển thị</label>
+                                <InputText class="form-control" @bind-Value="updateModel.Name" placeholder="Nhập tên của bạn" />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Mật khẩu mới (để trống nếu không muốn thay đổi)</label>
+                                <InputText class="form-control" @bind-Value="updateModel.NewPassword" type="password" placeholder="Mật khẩu mới" />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Xác nhận mật khẩu mới</label>
+                                <InputText class="form-control" @bind-Value="updateModel.ConfirmPassword" type="password" placeholder="Xác nhận mật khẩu mới" />
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" disabled="@isUpdating">
+                                @if (isUpdating)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                <span class="oi oi-check" aria-hidden="true"></span>
+                                Cập nhật
+                            </button>
+                        </EditForm>
+                        
+                        @if (!string.IsNullOrEmpty(message))
+                        {
+                            <div class="alert @(isSuccess ? "alert-success" : "alert-danger") mt-3">
+                                @message
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0 text-danger">
+                            <span class="oi oi-warning" aria-hidden="true"></span>
+                            Khu vực nguy hiểm
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Các hành động sau đây không thể hoàn tác.</p>
+                        <button class="btn btn-outline-danger" @onclick="ShowDeleteConfirmation">
+                            <span class="oi oi-trash" aria-hidden="true"></span>
+                            Xóa tài khoản
+                        </button>
+                        
+                        @if (showDeleteConfirmation)
+                        {
+                            <div class="mt-3 p-3 border border-danger rounded">
+                                <p class="text-danger fw-bold">Bạn có chắc chắn muốn xóa tài khoản?</p>
+                                <p>Hành động này sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan.</p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-danger" @onclick="HandleDeleteAccount" disabled="@isDeleting">
+                                        @if (isDeleting)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        }
+                                        Xác nhận xóa
+                                    </button>
+                                    <button class="btn btn-secondary" @onclick="() => showDeleteConfirmation = false">
+                                        Hủy
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isAuthenticated = false;
+    private UserInfo? currentUser;
+    private UpdateProfileModel updateModel = new();
+    private bool isUpdating = false;
+    private bool isDeleting = false;
+    private bool showDeleteConfirmation = false;
+    private string message = string.Empty;
+    private bool isSuccess = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (!isAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+        
+        currentUser = await AuthService.GetCurrentUserAsync();
+        if (currentUser != null)
+        {
+            updateModel.Name = currentUser.Name;
+        }
+    }
+
+    private async Task HandleUpdateProfile()
+    {
+        isUpdating = true;
+        message = string.Empty;
+        
+        try
+        {
+            var token = await AuthService.GetTokenAsync();
+            if (string.IsNullOrEmpty(token))
+            {
+                message = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+                isSuccess = false;
+                return;
+            }
+
+            var httpClient = HttpClientFactory.CreateClient("API");
+            httpClient.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var updateData = new
+            {
+                Name = updateModel.Name,
+                NewPassword = string.IsNullOrEmpty(updateModel.NewPassword) ? null : updateModel.NewPassword
+            };
+
+            var response = await httpClient.PutAsJsonAsync("/api/user/profile", updateData);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                message = "Cập nhật thông tin thành công!";
+                isSuccess = true;
+                
+                // Refresh current user info
+                currentUser = await AuthService.GetCurrentUserAsync();
+                
+                // Clear password fields
+                updateModel.NewPassword = string.Empty;
+                updateModel.ConfirmPassword = string.Empty;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                message = $"Cập nhật thất bại: {errorContent}";
+                isSuccess = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Lỗi: {ex.Message}";
+            isSuccess = false;
+        }
+        finally
+        {
+            isUpdating = false;
+        }
+    }
+
+    private void ShowDeleteConfirmation()
+    {
+        showDeleteConfirmation = true;
+        message = string.Empty;
+    }
+
+    private async Task HandleDeleteAccount()
+    {
+        isDeleting = true;
+        message = string.Empty;
+        
+        try
+        {
+            var token = await AuthService.GetTokenAsync();
+            if (string.IsNullOrEmpty(token))
+            {
+                message = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+                isSuccess = false;
+                return;
+            }
+
+            var httpClient = HttpClientFactory.CreateClient("API");
+            httpClient.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = await httpClient.DeleteAsync("/api/user/account");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                await AuthService.LogoutAsync();
+                Navigation.NavigateTo("/login", true);
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                message = $"Xóa tài khoản thất bại: {errorContent}";
+                isSuccess = false;
+                showDeleteConfirmation = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Lỗi: {ex.Message}";
+            isSuccess = false;
+            showDeleteConfirmation = false;
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    public class UpdateProfileModel
+    {
+        public string Name { get; set; } = string.Empty;
+        
+        public string NewPassword { get; set; } = string.Empty;
+        
+        [Compare(nameof(NewPassword), ErrorMessage = "Mật khẩu xác nhận không khớp")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+}
+
