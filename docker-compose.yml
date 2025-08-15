@@ -20,11 +20,24 @@ services:
     container_name: users-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=AIToolDb;User=sa;Password=SwN12345678;TrustServerCertificate=True
     ports:
       - "5011:80"
     depends_on:
       - sqlserver
+    restart: unless-stopped
+
+  chatgpttool:
+    build:
+      context: .
+      dockerfile: ChatGPTTool/Dockerfile
+    container_name: chatgpttool
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "5012:80"
     restart: unless-stopped
 
   nginx:
@@ -38,18 +51,7 @@ services:
       # - ./API.Gateways/ssl:/etc/nginx/ssl:ro
     depends_on:
       - users.api
-    restart: unless-stopped
-
-  chatgpttool:
-    build:
-      context: .
-      dockerfile: ChatGPTTool/Dockerfile
-    container_name: chatgpttool
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-    ports:
-      - "5012:80"  
+      - chatgpttool
     restart: unless-stopped
 
 volumes:
