@@ -1,41 +1,98 @@
 @page "/login"
-@using System.Net.Http.Json
-@using System.ComponentModel.DataAnnotations
 @using ChatGPTTool.Services
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@inject IHttpClientFactory HttpClientFactory
+@using System.ComponentModel.DataAnnotations
+@inject IAuthService AuthService
 @inject NavigationManager Navigation
 @inject IIPService IPService
 @inject IJSRuntime JS
-@inject ProtectedSessionStorage SessionStorage
-@inject IAuthService AuthService
+@inject IHttpContextAccessor HttpContextAccessor
 
-<h3>Đăng nhập</h3>
+<PageTitle>Đăng nhập - ChatGPT Tool</PageTitle>
 
-<IPInfoDisplay />
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-lg mt-5">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="oi oi-account-login me-2"></i>
+                        Đăng nhập
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="oi oi-warning me-2"></i>
+                            @errorMessage
+                            <button type="button" class="btn-close" @onclick="() => errorMessage = string.Empty"></button>
+                        </div>
+                    }
 
-<div class="card p-4" style="max-width:400px;margin:auto;">
-    <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <div class="mb-3">
-            <label>Email</label>
-            <InputText class="form-control" @bind-Value="loginModel.Email" />
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="oi oi-check me-2"></i>
+                            @successMessage
+                            <button type="button" class="btn-close" @onclick="() => successMessage = string.Empty"></button>
+                        </div>
+                    }
+
+                    <!-- Regular Login Form -->
+                    <EditForm Model="loginModel" OnValidSubmit="HandleLogin" class="mb-4">
+                        <DataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText class="@EmailInputClass"
+                                       @bind-Value="loginModel.Email"
+                                       placeholder="Nhập email của bạn" />
+                            <ValidationMessage For="@(() => loginModel.Email)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <InputText type="password"
+                                       class="@PasswordInputClass"
+                                       @bind-Value="loginModel.Password"
+                                       placeholder="Nhập mật khẩu" />
+                            <ValidationMessage For="@(() => loginModel.Password)" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3" disabled="@isLoading">
+                            @if (isLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            }
+                            <i class="oi oi-account-login me-2"></i>
+                            Đăng nhập
+                        </button>
+                    </EditForm>
+
+                    <div class="text-center mb-3">
+                        <span class="text-muted">Hoặc</span>
+                    </div>
+
+                    <!-- Google OAuth Login -->
+                    <button class="btn btn-outline-danger w-100 mb-3" @onclick="LoginWithGoogle" disabled="@isLoading">
+                        @if (isLoading)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        <i class="oi oi-account-login me-2"></i>
+                        Đăng nhập với Google
+                    </button>
+
+                    <div class="text-center">
+                        <small class="text-muted">
+                            Chưa có tài khoản?
+                            <a href="#" class="text-decoration-none">Đăng ký ngay</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-            <label>Mật khẩu</label>
-            <InputText class="form-control" @bind-Value="loginModel.Password" type="password" />
-        </div>
-        <button class="btn btn-primary w-100" type="submit" disabled="@isLoading">Đăng nhập</button>
-    </EditForm>
-    <div class="text-center my-3">Hoặc</div>
-    <button class="btn btn-danger w-100" @onclick="LoginWithGoogle" disabled="@isLoading">
-        <i class="oi oi-account-login"></i> Đăng nhập với Google
-    </button>
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <div class="alert alert-danger mt-3">@errorMessage</div>
-    }
+    </div>
 </div>
 
 @code {
@@ -43,92 +100,87 @@
     private LoginModel loginModel = new();
     private bool isLoading = false;
     private string? errorMessage;
-    private ClientInfo? clientInfo;
+    private string? successMessage;
+    private string? clientIp;
 
     protected override async Task OnInitializedAsync()
     {
-        // Lấy thông tin client khi component khởi tạo
-        await GetClientInfo();
+        var isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (isAuthenticated)
+        {
+            Navigation.NavigateTo("/");
+        }
+        clientIp = HttpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
     }
-
-    private async Task GetClientInfo()
-    {
-        try
-        {
-            clientInfo = await IPService.GetClientInfoAsync();
-            Console.WriteLine($"Client IP: {clientInfo.IP}");
-            Console.WriteLine($"User Agent: {clientInfo.UserAgent}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Không thể lấy thông tin client: {ex.Message}");
-            clientInfo = new ClientInfo { IP = "unknown" };
-        }
     }
 
     private async Task HandleLogin()
     {
+        if (isLoading) return;
+
         isLoading = true;
-        errorMessage = null;
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
         try
         {
-            var httpClient = HttpClientFactory.CreateClient("API");
+            var success = await AuthService.LoginAsync(loginModel.Email, loginModel.Password, clientIp);
 
-            // Tạo request data với IP và thông tin client
-            var requestData = new
+            if (success)
             {
-                Username = loginModel.Email,
-                Password = loginModel.Password,
-                IpAddress = clientInfo?.IP ?? "unknown",
-
-            };
-
-            var response = await httpClient.PostAsJsonAsync("/api/user/login", requestData);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var raw = await response.Content.ReadAsStringAsync();
-                // raw == "\"eyJhbGci…\"" (note the extra quotes)
-                var token = raw.Trim('"');   // remove the JSON-string wrapping quotes
-                                             // then:
-                var loginResult = new LoginResponse { AccessToken = token };
-
-                await AuthService.SignInWithTokenAsync(token);
+                successMessage = "Đăng nhập thành công! Đang chuyển hướng...";
+                StateHasChanged();
+                await Task.Delay(1000);
                 Navigation.NavigateTo("/");
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                errorMessage = $"Đăng nhập thất bại: {errorContent}";
+                errorMessage = "Email hoặc mật khẩu không đúng. Vui lòng thử lại.";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Lỗi: {ex.Message}";
+            errorMessage = $"Lỗi đăng nhập: {ex.Message}";
         }
-        isLoading = false;
+        finally
+        {
+            isLoading = false;
+        }
     }
 
-    private void LoginWithGoogle()
+    private async Task LoginWithGoogle()
     {
+        if (isLoading) return;
+
+        isLoading = true;
+        errorMessage = string.Empty;
+
+        try
+        {
         // Chuyển hướng đến endpoint Google OAuth của backend
-        Navigation.NavigateTo("/api/user/login/google", forceLoad: true);
+            Navigation.NavigateTo("/api/user/login/google", forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi đăng nhập Google: {ex.Message}";
+            isLoading = false;
+        }
     }
+
+    private string EmailInputClass =>
+        string.IsNullOrWhiteSpace(loginModel.Email) ? "form-control" : "form-control is-valid";
+
+    private string PasswordInputClass =>
+        string.IsNullOrWhiteSpace(loginModel.Password) ? "form-control" : "form-control is-valid";
 
     public class LoginModel
     {
         [Required(ErrorMessage = "Email không được để trống")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Mật khẩu không được để trống")]
+        [MinLength(6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự")]
         public string Password { get; set; } = string.Empty;
     }
-
-    public class LoginResponse
-    {
-        public string AccessToken { get; set; } = string.Empty;
-        // public string RefreshToken { get; set; } = string.Empty;
-        // public DateTime ExpiresAt { get; set; }
-        // public string ClientIP { get; set; } = string.Empty;
-    }
-} 
+}

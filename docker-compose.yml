@@ -21,9 +21,10 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=UsersDb;User=sa;Password=SwN12345678;TrustServerCertificate=True
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=AIToolDb;User=sa;Password=SwN12345678;TrustServerCertificate=True
     ports:
-      - "5010:80"
+      - "5011:80"
     depends_on:
       - sqlserver
     restart: unless-stopped
@@ -35,15 +36,16 @@ services:
     container_name: chatgpttool
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
     ports:
-      - "5011:80"
+      - "5012:80"
     restart: unless-stopped
 
   nginx:
     image: nginx:latest
     container_name: nginx
     ports:
-      - "8081:80"
+      - "5010:80"
     volumes:
       - ./API.Gateways/nginx.conf:/etc/nginx/nginx.conf:ro
       # Nếu bạn có SSL, mount thêm thư mục ssl:

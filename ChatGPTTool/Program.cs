@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using ChatGPTTool.Data;
 using ChatGPTTool.Services;
 
@@ -8,18 +9,21 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddScoped<IIPService, IPService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// Configure HttpClient with base address for API calls
+// Add HttpClient for API calls
 builder.Services.AddHttpClient("API", client =>
 {
-    // ✅ SỬA: Trong Docker environment, luôn sử dụng nginx gateway
-    var apiBaseUrl = "http://nginx:80";  // Sử dụng nginx gateway
-
+    var inContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    var apiBaseUrl = inContainer ? "http://nginx" : "http://localhost:5010"; // dev local dùng 5010 (nginx)
     client.BaseAddress = new Uri(apiBaseUrl);
 });
+
+// Add AuthService
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 

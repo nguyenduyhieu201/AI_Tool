@@ -12,20 +12,24 @@ public interface IAuthService
     Task LogoutAsync();
     Task<string?> GetTokenAsync();
     Task SignInWithTokenAsync(string token);
+    Task<bool> LoginAsync(string email, string password, string ipAddress);
+    Task<bool> LoginWithGoogleAsync(string googleToken);
     event Action<bool>? OnAuthenticationStateChanged;
 }
 
 public class AuthService : IAuthService
 {
     private readonly ProtectedSessionStorage _sessionStorage;
+    private readonly IHttpClientFactory _httpClientFactory;
     private UserInfo? _currentUser;
     private bool? _isAuthenticated;
     private const string TokenKey = "jwt_token";
     public event Action<bool>? OnAuthenticationStateChanged;
 
-    public AuthService(ProtectedSessionStorage sessionStorage)
+    public AuthService(ProtectedSessionStorage sessionStorage, IHttpClientFactory httpClientFactory)
     {
         _sessionStorage = sessionStorage;
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task<bool> IsAuthenticatedAsync()
@@ -76,10 +80,71 @@ public class AuthService : IAuthService
             var result = await _sessionStorage.GetAsync<string>(TokenKey);
             return result.Success ? result.Value : null;
         }
-        catch (Exception ex)
+        catch
         {
             return null;
         }
+    }
+
+    public async Task<bool> LoginAsync(string email, string password, string ipAddress)
+    {
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient("API");
+            var loginRequest = new { Username = email, Password = password , IpAddress = ipAddress};
+            
+            var response = await httpClient.PostAsJsonAsync("/api/auth/login", loginRequest);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var token = await response.Content.ReadAsStringAsync();
+                token = token.Trim('"'); // Remove JSON quotes
+                
+                await SignInWithTokenAsync(token);
+                return true;
+            }
+            
+            return false;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> LoginWithGoogleAsync(string googleToken)
+    {
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient("API");
+            var googleLoginRequest = new { Token = googleToken };
+            
+            var response = await httpClient.PostAsJsonAsync("/api/user/login/google", googleLoginRequest);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var token = await response.Content.ReadAsStringAsync();
+                token = token.Trim('"'); // Remove JSON quotes
+                
+                await SignInWithTokenAsync(token);
+                return true;
+            }
+            
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task SignInWithTokenAsync(string token)
+    {
+        await _sessionStorage.SetAsync(TokenKey, token);
+        _isAuthenticated = true;
+        _currentUser = null; // Clear cache to force refresh
+        _currentUser = await GetCurrentUserAsync();
+        OnAuthenticationStateChanged?.Invoke(true);
     }
 
     public async Task LogoutAsync()
