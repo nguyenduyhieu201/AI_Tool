@@ -14,3 +14,6 @@ obj/
 project.lock.json
 project.fragment.lock.json
 *.DotSettings.user
+
+# Configuration files (chứa secrets)
+**/appsettings.json

@@ -87,8 +87,9 @@ namespace Users.Infrastructure.Security.ExternalAuth.Google
         {
             try
             {
+                // Prefer the current tokeninfo endpoint
                 var response = await _retryPolicy.ExecuteAsync(async () =>
-                    await _httpClient.GetAsync($"https://www.googleapis.com/oauth2/v3/tokeninfo?access_token={token}"));
+                    await _httpClient.GetAsync($"https://oauth2.googleapis.com/tokeninfo?access_token={token}"));
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -98,7 +99,12 @@ namespace Users.Infrastructure.Security.ExternalAuth.Google
                 var content = await response.Content.ReadAsStringAsync();
                 var tokenInfo = JsonSerializer.Deserialize<GoogleTokenValidation>(content);
 
-                return tokenInfo?.Audience == _options.ClientId;
+                // Accept audience from multiple fields depending on Google response variant
+                var audience = tokenInfo?.Audience
+                                ?? tokenInfo?.Aud
+                                ?? tokenInfo?.IssuedTo;
+
+                return string.Equals(audience, _options.ClientId, StringComparison.Ordinal);
             }
             catch (Exception ex)
             {

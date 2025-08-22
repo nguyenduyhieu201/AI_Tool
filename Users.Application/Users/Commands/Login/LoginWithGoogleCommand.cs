@@ -54,8 +54,7 @@ namespace Users.Application.Users.Commands.Login
                 var strategy = _authFactory.CreateStrategy("Google");
                 var result = await strategy.AuthenticateAsync(request.Token);
 
-                if (!result.Success)
-                {
+                if (!result.Success)                {
                     throw new InvalidOperationException(result.Message ?? "Failed to authenticate with Google");
                 }
 

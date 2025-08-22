@@ -1,7 +1,7 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 h1:focus {
@@ -36,6 +36,196 @@ a, .btn-link {
 
 .validation-message {
     color: red;
+}
+
+/* Google OAuth Button Styles */
+.btn-google {
+    background: linear-gradient(135deg, #4285f4 0%, #34a853 50%, #fbbc05 75%, #ea4335 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 48px;
+}
+
+.btn-google:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(66, 133, 244, 0.4);
+    background: linear-gradient(135deg, #3367d6 0%, #2d8f47 50%, #f4b400 75%, #d93025 100%);
+}
+
+.btn-google:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+}
+
+.btn-google:disabled {
+    opacity: 0.7;
+    transform: none;
+    cursor: not-allowed;
+}
+
+.btn-google .google-icon {
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #4285f4;
+}
+
+.btn-google .google-text {
+    font-family: 'Roboto', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+/* Enhanced Card Styles */
+.login-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.login-card .card-header {
+    border-radius: 16px 16px 0 0 !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none;
+    padding: 1.5rem;
+}
+
+.login-card .card-body {
+    padding: 2rem;
+}
+
+/* Enhanced Form Controls */
+.form-control {
+    border-radius: 8px;
+    border: 2px solid #e1e5e9;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #4285f4;
+    box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+/* Divider Styles */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.5rem 0;
+    color: #6c757d;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.divider span {
+    padding: 0 1rem;
+    background: white;
+    font-size: 0.9rem;
+}
+
+/* Enhanced Button Styles */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-height: 48px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.7;
+    transform: none;
+}
+
+/* Loading Spinner */
+.spinner-border {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .login-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .btn-google {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        min-height: 44px;
+    }
+    
+    .btn-google .google-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 11px;
+    }
+}
+
+/* Animation for card entrance */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-card {
+    animation: slideInUp 0.6s ease-out;
+}
+
+/* Hover effects for form elements */
+.form-control:hover {
+    border-color: #4285f4;
+}
+
+/* Focus states */
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
 }
 
 #blazor-error-ui {

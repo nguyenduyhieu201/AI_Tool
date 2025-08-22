@@ -16,6 +16,7 @@ using Users.API.Endpoints;
 using BuildingBlock.Behavior;
 using Users.Application.Users.Commands.Login;
 using BuildingBlock.Exceptions.Handler;
+using Users.Infrastructure.Security.ExternalAuth.Google;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,27 +35,27 @@ builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 builder.Services.AddMediatR(config =>
 {
-    config.RegisterServicesFromAssembly(assembly);
-    config.RegisterServicesFromAssembly(typeof(LoginCommandHandler).Assembly);
-    config.AddOpenBehavior(typeof(ValidationBehavior<,>));
-    config.AddOpenBehavior(typeof(LoggingBehavior<,>));
+	config.RegisterServicesFromAssembly(assembly);
+	config.RegisterServicesFromAssembly(typeof(LoginCommandHandler).Assembly);
+	config.AddOpenBehavior(typeof(ValidationBehavior<,>));
+	config.AddOpenBehavior(typeof(LoggingBehavior<,>));
 });
 
 // Add services to the container
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+	.AddJsonOptions(options =>
+	{
+		options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+	});
 //Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 //builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly("Users.Infrastructure")));
+	options.UseSqlServer(
+		builder.Configuration.GetConnectionString("DefaultConnection"),
+		b => b.MigrationsAssembly("Users.Infrastructure")));
 
 // Add Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -62,24 +63,25 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Add Security Services
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
-
+// Bind GoogleAuth options
+builder.Services.Configure<GoogleAuthOptions>(builder.Configuration.GetSection("GoogleAuth"));
 
 // Add JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-        };
-    });
+	.AddJwtBearer(options =>
+	{
+		options.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = true,
+			ValidateAudience = true,
+			ValidateLifetime = true,
+			ValidateIssuerSigningKey = true,
+			ValidIssuer = builder.Configuration["Jwt:Issuer"],
+			ValidAudience = builder.Configuration["Jwt:Audience"],
+			IssuerSigningKey = new SymmetricSecurityKey(
+				Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+		};
+	});
 
 // Add Application Services
 builder.Services.AddApplicationServices();
@@ -106,15 +108,15 @@ app.MapControllers();
 // Apply migrations and seed data at startup
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
-    
-    // Seed data if no users exist
-    if (!db.Users.Any())
-    {
-        db.Users.AddRange(SeedData.GetUsers());
-        db.SaveChanges();
-    }
+	var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+	db.Database.Migrate();
+	
+	// Seed data if no users exist
+	if (!db.Users.Any())
+	{
+		db.Users.AddRange(SeedData.GetUsers());
+		db.SaveChanges();
+	}
 }
 
 app.MapCarter();
