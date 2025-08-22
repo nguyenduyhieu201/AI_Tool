@@ -1,0 +1,183 @@
+@page "/ip-test"
+@using ChatGPTTool.Services
+@inject IIPService IPService
+
+<h3>Test Lấy IP</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Thông tin IP</h5>
+            </div>
+            <div class="card-body">
+                @if (isLoading)
+                {
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Đang lấy thông tin IP...</p>
+                    </div>
+                }
+                else if (clientInfo != null)
+                {
+                    <table class="table table-striped">
+                        <tr>
+                            <td><strong>IP Address:</strong></td>
+                            <td>@clientInfo.IP</td>
+                        </tr>
+                        <tr>
+                            <td><strong>User Agent:</strong></td>
+                            <td><small>@clientInfo.UserAgent</small></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Screen Resolution:</strong></td>
+                            <td>@clientInfo.ScreenResolution</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Timezone:</strong></td>
+                            <td>@clientInfo.Timezone</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Timestamp:</strong></td>
+                            <td>@clientInfo.Timestamp.ToString("yyyy-MM-dd HH:mm:ss UTC")</td>
+                        </tr>
+                    </table>
+
+                    @if (clientInfo.IPInfo != null)
+                    {
+                        <h6 class="mt-3">Thông tin chi tiết:</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Country:</strong></td>
+                                <td>@clientInfo.IPInfo.Country</td>
+                            </tr>
+                            <tr>
+                                <td><strong>City:</strong></td>
+                                <td>@clientInfo.IPInfo.City</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Region:</strong></td>
+                                <td>@clientInfo.IPInfo.Region</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ISP:</strong></td>
+                                <td>@clientInfo.IPInfo.ISP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Timezone:</strong></td>
+                                <td>@clientInfo.IPInfo.Timezone</td>
+                            </tr>
+                        </table>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-danger">
+                        Không thể lấy thông tin IP
+                    </div>
+                }
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary" @onclick="RefreshIPInfo" disabled="@isLoading">
+                    <i class="oi oi-reload"></i> Làm mới
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Test API với IP</h5>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-success" @onclick="TestAPIWithIP" disabled="@isLoading">
+                    <i class="oi oi-arrow-right"></i> Test gửi API với IP
+                </button>
+                
+                @if (!string.IsNullOrEmpty(apiResult))
+                {
+                    <div class="mt-3">
+                        <h6>Kết quả API:</h6>
+                        <pre class="bg-light p-2 rounded">@apiResult</pre>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private ClientInfo? clientInfo;
+    private bool isLoading = true;
+    private string? apiResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadIPInfo();
+    }
+
+    private async Task LoadIPInfo()
+    {
+        try
+        {
+            isLoading = true;
+            clientInfo = await IPService.GetClientInfoAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading IP info: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RefreshIPInfo()
+    {
+        await LoadIPInfo();
+    }
+
+    private async Task TestAPIWithIP()
+    {
+        try
+        {
+            isLoading = true;
+            
+            // Tạo request data với IP
+            var requestData = new
+            {
+                Email = "test@example.com",
+                Password = "test123",
+                ClientIP = clientInfo?.IP ?? "unknown",
+                IPInfo = clientInfo?.IPInfo != null ? System.Text.Json.JsonSerializer.Serialize(clientInfo.IPInfo) : "{}",
+                UserAgent = clientInfo?.UserAgent ?? "unknown",
+                Timestamp = clientInfo?.Timestamp ?? DateTime.UtcNow,
+                ScreenResolution = clientInfo?.ScreenResolution ?? "unknown",
+                Timezone = clientInfo?.Timezone ?? "unknown"
+            };
+
+            // Gửi request test
+            var httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri("http://localhost:8081");
+            
+            var response = await httpClient.PostAsJsonAsync("/api/user/login", requestData);
+            var content = await response.Content.ReadAsStringAsync();
+            
+            apiResult = $"Status: {response.StatusCode}\nContent: {content}";
+        }
+        catch (Exception ex)
+        {
+            apiResult = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+} 

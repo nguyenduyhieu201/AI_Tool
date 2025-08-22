@@ -1,0 +1,89 @@
+@using ChatGPTTool.Services
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@implements IDisposable
+
+@if (isAuthenticated != null && currentUser != null)
+{
+    <div class="user-menu dropdown">
+        <button class="btn btn-outline-light dropdown-toggle" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="oi oi-person" aria-hidden="true"></span>
+            @currentUser.Email
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+            <li>
+                <a class="dropdown-item" href="/profile">
+                    <span class="oi oi-person" aria-hidden="true"></span>
+                    Thông tin cá nhân
+                </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <button class="dropdown-item" @onclick="HandleLogout">
+                    <span class="oi oi-account-logout" aria-hidden="true"></span>
+                    Đăng xuất
+                </button>
+            </li>
+        </ul>
+    </div>
+}
+else if (isAuthenticated == false)
+{
+    <a class="btn btn-outline-light" href="/login">
+        <span class="oi oi-account-login" aria-hidden="true"></span>
+        Đăng nhập
+    </a>
+}
+
+@code {
+    private bool? isAuthenticated;
+    private UserInfo? currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthService.OnAuthenticationStateChanged += OnAuthStateChanged;
+        await CheckAuthState();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await CheckAuthState();
+    }
+
+    private async Task CheckAuthState()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (isAuthenticated == true)
+        {
+            currentUser = await AuthService.GetCurrentUserAsync();
+        }
+        StateHasChanged();
+    }
+
+    private async void OnAuthStateChanged(bool authenticated)
+    {
+        isAuthenticated = authenticated;
+        if (authenticated)
+        {
+            // Khi đăng nhập thành công, lấy user info ngay lập tức
+            currentUser = await AuthService.GetCurrentUserAsync();
+        }
+        else
+        {
+            currentUser = null;
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/login", true);
+    }
+
+    public void Dispose()
+    {
+        AuthService.OnAuthenticationStateChanged -= OnAuthStateChanged;
+    }
+}
+

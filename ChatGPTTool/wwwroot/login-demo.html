@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo UI Đăng nhập Google OAuth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/site.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .demo-container {
+            padding: 2rem;
+        }
+        
+        .demo-title {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+        
+        .demo-subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="demo-title">🎨 Demo UI Đăng nhập Google OAuth</h1>
+        <p class="demo-subtitle">Giao diện đẹp và hiện đại với animation mượt mà</p>
+        
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card login-card shadow-lg mt-5">
+                        <div class="card-header text-white text-center">
+                            <h4 class="mb-0">
+                                <i class="oi oi-account-login me-2"></i>
+                                Đăng nhập
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Demo Form -->
+                            <form class="mb-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" placeholder="Nhập email của bạn" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Mật khẩu</label>
+                                    <input type="password" class="form-control" placeholder="Nhập mật khẩu" />
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 mb-3">
+                                    <i class="oi oi-account-login me-2"></i>
+                                    Đăng nhập
+                                </button>
+                            </form>
+
+                            <!-- Enhanced Divider -->
+                            <div class="divider">
+                                <span>Hoặc</span>
+                            </div>
+
+                            <!-- Enhanced Google OAuth Login -->
+                            <button class="btn btn-google w-100 mb-3" onclick="demoGoogleLogin()">
+                                <div class="google-icon">
+                                    G
+                                </div>
+                                <span class="google-text">Đăng nhập với Google</span>
+                            </button>
+
+                            <div class="text-center">
+                                <small class="text-muted">
+                                    Chưa có tài khoản?
+                                    <a href="#" class="text-decoration-none">Đăng ký ngay</a>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <p style="color: rgba(255, 255, 255, 0.7);">
+                💡 Đây là demo UI. Trong thực tế, nút Google sẽ redirect đến OAuth flow.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function demoGoogleLogin() {
+            alert('🎉 Demo: Nút Google OAuth đã được click!\n\nTrong thực tế, đây sẽ là:\n1. Redirect đến Google OAuth\n2. User đăng nhập Google\n3. Callback với access token\n4. Đăng nhập thành công!');
+        }
+        
+        // Demo loading state
+        document.querySelector('.btn-google').addEventListener('click', function() {
+            const btn = this;
+            const originalContent = btn.innerHTML;
+            
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span><span class="google-text">Đang xử lý...</span>';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
