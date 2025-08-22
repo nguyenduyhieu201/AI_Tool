@@ -1,0 +1,19 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build output
+bin/
+obj/
+
+# Rider
+.idea/
+
+# Dotnet artifacts
+project.lock.json
+project.fragment.lock.json
+*.DotSettings.user
+
+# Configuration files (chứa secrets)
+**/appsettings.json
