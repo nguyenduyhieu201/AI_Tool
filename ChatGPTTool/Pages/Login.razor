@@ -1,6 +1,7 @@
 @page "/login"
 @using ChatGPTTool.Services
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.WebUtilities
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -11,14 +12,14 @@
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-4">
-            <div class="card shadow-lg mt-5">
-                <div class="card-header bg-primary text-white text-center">
+            <div class="card login-card shadow-lg mt-5">
+                <div class="card-header text-white text-center">
                     <h4 class="mb-0">
                         <i class="oi oi-account-login me-2"></i>
                         Đăng nhập
                     </h4>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body">
                     @if (!string.IsNullOrEmpty(errorMessage))
                     {
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -68,18 +69,24 @@
                         </button>
                     </EditForm>
 
-                    <div class="text-center mb-3">
-                        <span class="text-muted">Hoặc</span>
+                    <!-- Enhanced Divider -->
+                    <div class="divider">
+                        <span>Hoặc</span>
                     </div>
 
-                    <!-- Google OAuth Login -->
-                    <button class="btn btn-outline-danger w-100 mb-3" @onclick="LoginWithGoogle" disabled="@isLoading">
+                    <!-- Enhanced Google OAuth Login -->
+                    <button class="btn btn-google w-100 mb-3" @onclick="LoginWithGoogle" disabled="@isLoading">
                         @if (isLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                         }
-                        <i class="oi oi-account-login me-2"></i>
-                        Đăng nhập với Google
+                        else
+                        {
+                            <div class="google-icon">
+                                G
+                            </div>
+                        }
+                        <span class="google-text">Đăng nhập với Google</span>
                     </button>
 
                     <div class="text-center">
@@ -100,6 +107,7 @@
     private string? errorMessage;
     private string? successMessage;
     private string? clientIp;
+    private bool handledJwt;
 
     protected override async Task OnInitializedAsync()
     {
@@ -107,8 +115,36 @@
         if (isAuthenticated)
         {
             Navigation.NavigateTo("/");
+            return;
         }
         clientIp = HttpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+        
+        // Kiểm tra error từ Google OAuth callback
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("error", out var error))
+        {
+            errorMessage = Uri.UnescapeDataString(error);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+        
+        if (!handledJwt && query.TryGetValue("jwt", out var jwtVals))
+        {
+            handledJwt = true;
+            var jwt = jwtVals.ToString();
+            if (!string.IsNullOrEmpty(jwt))
+            {
+                await AuthService.SignInWithTokenAsync(jwt);
+                // Làm sạch URL và điều hướng về trang chủ
+                var clean = uri.GetLeftPart(UriPartial.Path);
+                Navigation.NavigateTo(clean, forceLoad: false);
+                Navigation.NavigateTo("/", forceLoad: false);
+            }
+        }
     }
 
     private async Task HandleLogin()
@@ -154,7 +190,8 @@
 
         try
         {
-            Navigation.NavigateTo("/api/user/login/google", forceLoad: true);
+            // Redirect đến Google OAuth endpoint
+            Navigation.NavigateTo("/auth/google", forceLoad: true);
         }
         catch (Exception ex)
         {

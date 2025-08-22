@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace Users.Domain.Models
 {
@@ -10,7 +11,20 @@ namespace Users.Domain.Models
         /// <summary>
         /// ID của ứng dụng được cấp phép sử dụng token
         /// </summary>
+        [JsonPropertyName("audience")] // tokeninfo?access_token=...
         public string Audience { get; set; }
+
+        /// <summary>
+        /// ID ứng dụng (aud) - thường xuất hiện khi dùng tokeninfo?id_token=...
+        /// </summary>
+        [JsonPropertyName("aud")]
+        public string Aud { get; set; }
+
+        /// <summary>
+        /// ClientId được cấp (issued_to) - một số biến thể cũ của tokeninfo
+        /// </summary>
+        [JsonPropertyName("issued_to")]
+        public string IssuedTo { get; set; }
 
         /// <summary>
         /// Thời gian hết hạn của token (tính bằng giây)

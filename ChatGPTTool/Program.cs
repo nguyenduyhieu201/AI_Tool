@@ -10,18 +10,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddControllers(); // Thêm controllers
 builder.Services.AddSingleton<WeatherForecastService>();
 
 // Add HttpClient for API calls
 builder.Services.AddHttpClient("API", client =>
 {
     var inContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-    var apiBaseUrl = inContainer ? "http://nginx" : "http://localhost:5010"; // dev local d�ng 5010 (nginx)
+    var apiBaseUrl = inContainer ? "http://nginx" : "http://localhost:5010"; // dev local dùng 5010 (nginx)
     client.BaseAddress = new Uri(apiBaseUrl);
 });
 
 // Add AuthService
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Add Google OAuth Service
+builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 
 var app = builder.Build();
 
@@ -39,6 +43,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.MapControllers(); // Thêm route cho controllers
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
