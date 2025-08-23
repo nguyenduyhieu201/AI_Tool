@@ -1,0 +1,232 @@
+[33me3c12bc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32maddMAUIProject[m[33m)[m HEAD@{0}: revert: Revert "addTatus"
+[33m4e7bed9[m[33m ([m[1;32mdevelop[m[33m)[m HEAD@{1}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m4e7bed9[m[33m ([m[1;32mdevelop[m[33m)[m HEAD@{2}: rebase (start): checkout refs/heads/develop
+[33mf458b71[m HEAD@{3}: checkout: moving from develop to addMAUIProject
+[33m4e7bed9[m[33m ([m[1;32mdevelop[m[33m)[m HEAD@{4}: commit (merge): addTatus
+[33mb93a187[m[33m ([m[1;32mmain[m[33m)[m HEAD@{5}: checkout: moving from develop to develop
+[33mb93a187[m[33m ([m[1;32mmain[m[33m)[m HEAD@{6}: checkout: moving from addMAUIProject to develop
+[33mf458b71[m HEAD@{7}: checkout: moving from develop to addMAUIProject
+[33mb93a187[m[33m ([m[1;32mmain[m[33m)[m HEAD@{8}: checkout: moving from main to develop
+[33mb93a187[m[33m ([m[1;32mmain[m[33m)[m HEAD@{9}: checkout: moving from develop to main
+[33mb93a187[m[33m ([m[1;32mmain[m[33m)[m HEAD@{10}: rebase (finish): returning to refs/heads/develop
+[33mb93a187[m[33m ([m[1;32mmain[m[33m)[m HEAD@{11}: rebase (start): checkout refs/heads/main
+[33m4b50bb6[m[33m ([m[1;31morigin/develop[m[33m)[m HEAD@{12}: checkout: moving from main to develop
+[33mb93a187[m[33m ([m[1;32mmain[m[33m)[m HEAD@{13}: rebase (abort): returning to refs/heads/main
+[33me9b3b91[m HEAD@{14}: rebase (pick): add git ignore
+[33mcec7455[m HEAD@{15}: rebase (pick): Initial commit
+[33m4b50bb6[m[33m ([m[1;31morigin/develop[m[33m)[m HEAD@{16}: rebase (start): checkout refs/heads/develop
+[33mb93a187[m[33m ([m[1;32mmain[m[33m)[m HEAD@{17}: reset: moving to HEAD
+[33mb93a187[m[33m ([m[1;32mmain[m[33m)[m HEAD@{18}: reset: moving to HEAD
+[33mb93a187[m[33m ([m[1;32mmain[m[33m)[m HEAD@{19}: reset: moving to HEAD
+[33mb93a187[m[33m ([m[1;32mmain[m[33m)[m HEAD@{20}: revert: Revert "mergeFromDevelop"
+[33m67adf1a[m HEAD@{21}: checkout: moving from develop to main
+[33m4b50bb6[m[33m ([m[1;31morigin/develop[m[33m)[m HEAD@{22}: checkout: moving from main to develop
+[33m67adf1a[m HEAD@{23}: reset: moving to HEAD
+[33m67adf1a[m HEAD@{24}: commit (merge): mergeFromDevelop
+[33me17af1c[m HEAD@{25}: checkout: moving from develop to main
+[33m4b50bb6[m[33m ([m[1;31morigin/develop[m[33m)[m HEAD@{26}: commit: addDevelop
+[33m34cdbed[m HEAD@{27}: checkout: moving from main to develop
+[33me17af1c[m HEAD@{28}: checkout: moving from develop-again to main
+[33m34cdbed[m HEAD@{29}: checkout: moving from develop to develop-again
+[33m34cdbed[m HEAD@{30}: checkout: moving from main to develop
+[33me17af1c[m HEAD@{31}: revert: Revert "Merge branch 'develop'"
+[33md7accc1[m HEAD@{32}: merge develop: Merge made by the 'ort' strategy.
+[33m92c895c[m HEAD@{33}: checkout: moving from develop to main
+[33m34cdbed[m HEAD@{34}: checkout: moving from main to develop
+[33m92c895c[m HEAD@{35}: checkout: moving from develop to main
+[33m34cdbed[m HEAD@{36}: checkout: moving from main to develop
+[33m92c895c[m HEAD@{37}: reset: moving to HEAD
+[33m92c895c[m HEAD@{38}: commit: add gitignore
+[33mfe643d4[m HEAD@{39}: commit: add git ignore
+[33m0b36f6a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{40}: checkout: moving from develop to main
+[33m34cdbed[m HEAD@{41}: checkout: moving from addMAUIProject to develop
+[33mf458b71[m HEAD@{42}: commit: DeleteAppSettingsValue
+[33m28cae9d[m HEAD@{43}: commit: fixAppSettings
+[33m2ad90d8[m[33m ([m[1;31morigin/addMAUIProject[m[33m)[m HEAD@{44}: reset: moving to HEAD
+[33m2ad90d8[m[33m ([m[1;31morigin/addMAUIProject[m[33m)[m HEAD@{45}: checkout: moving from develop to addMAUIProject
+[33m34cdbed[m HEAD@{46}: reset: moving to HEAD
+[33m34cdbed[m HEAD@{47}: checkout: moving from addMAUIProject to develop
+[33m2ad90d8[m[33m ([m[1;31morigin/addMAUIProject[m[33m)[m HEAD@{48}: checkout: moving from develop to addMAUIProject
+[33m34cdbed[m HEAD@{49}: reset: moving to HEAD
+[33m34cdbed[m HEAD@{50}: checkout: moving from addMAUIProject to develop
+[33m2ad90d8[m[33m ([m[1;31morigin/addMAUIProject[m[33m)[m HEAD@{51}: checkout: moving from develop to addMAUIProject
+[33m34cdbed[m HEAD@{52}: checkout: moving from addMAUIProject to develop
+[33m2ad90d8[m[33m ([m[1;31morigin/addMAUIProject[m[33m)[m HEAD@{53}: checkout: moving from develop to addMAUIProject
+[33m34cdbed[m HEAD@{54}: commit (merge): mergeFromAddMAUIProject
+[33mcf0f2bb[m HEAD@{55}: checkout: moving from addMAUIProject to develop
+[33m2ad90d8[m[33m ([m[1;31morigin/addMAUIProject[m[33m)[m HEAD@{56}: commit: removeAppSettingsInformation
+[33m2b1b78c[m HEAD@{57}: commit: removeappSettingsUserAPI
+[33md9b8fd9[m HEAD@{58}: commit: addappSettings
+[33md9b9b06[m HEAD@{59}: commit: dellAppSettings
+[33mfae9e2c[m HEAD@{60}: commit (merge): pullfromRemote
+[33meafe62c[m HEAD@{61}: rebase (abort): returning to refs/heads/addMAUIProject
+[33m1102f6b[m HEAD@{62}: rebase (start): checkout HEAD~30
+[33meafe62c[m HEAD@{63}: rebase (finish): returning to refs/heads/addMAUIProject
+[33meafe62c[m HEAD@{64}: rebase (pick): add app settings
+[33m2d121e1[m HEAD@{65}: rebase (pick): Remove appsettings.json from tracking and add to .gitignore
+[33m7597a68[m HEAD@{66}: rebase (pick): adjust git ignore
+[33m719c425[m HEAD@{67}: rebase (pick): fix login with google
+[33m8a756c8[m HEAD@{68}: rebase (pick): readd_ui
+[33mf8ab630[m HEAD@{69}: rebase (pick): add_docker
+[33m4626763[m HEAD@{70}: rebase (pick): del_chatgpt_UI
+[33m436bb6a[m HEAD@{71}: rebase (pick): addBlazorProject
+[33m0d6a9d3[m HEAD@{72}: rebase (pick): del_docker_compose
+[33mbf67641[m HEAD@{73}: rebase (pick): addDockerCompose
+[33m79ba748[m HEAD@{74}: rebase (pick): addDockerProject
+[33ma4b1bab[m HEAD@{75}: rebase (pick): fixAITool
+[33mc15423c[m HEAD@{76}: rebase (start): checkout HEAD~15
+[33m6fe0991[m HEAD@{77}: commit: add app settings
+[33mea94ff2[m HEAD@{78}: rebase (finish): returning to refs/heads/addMAUIProject
+[33mea94ff2[m HEAD@{79}: rebase (pick): Remove appsettings.json from tracking and add to .gitignore
+[33me31536b[m HEAD@{80}: rebase (pick): adjust git ignore
+[33m3b53dc1[m HEAD@{81}: commit (amend): fix login with google
+[33m02b4864[m HEAD@{82}: rebase: fast-forward
+[33m8efcc04[m HEAD@{83}: rebase (start): checkout HEAD~5
+[33m45e899d[m HEAD@{84}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m45e899d[m HEAD@{85}: rebase (pick): Remove appsettings.json from tracking and add to .gitignore
+[33m19a32af[m HEAD@{86}: rebase (pick): adjust git ignore
+[33m02b4864[m HEAD@{87}: commit (amend): fix login with google
+[33m953dedb[m HEAD@{88}: rebase: fast-forward
+[33m8efcc04[m HEAD@{89}: rebase (start): checkout HEAD~5
+[33m196e5cd[m HEAD@{90}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m196e5cd[m HEAD@{91}: rebase (start): checkout HEAD~5
+[33m196e5cd[m HEAD@{92}: checkout: moving from develop to addMAUIProject
+[33mcf0f2bb[m HEAD@{93}: checkout: moving from addMAUIProject to develop
+[33m196e5cd[m HEAD@{94}: reset: moving to HEAD
+[33m196e5cd[m HEAD@{95}: commit (amend): Remove appsettings.json from tracking and add to .gitignore
+[33m43fd4b6[m HEAD@{96}: commit (amend): Remove appsettings.json from tracking and add to .gitignore
+[33ma661d80[m HEAD@{97}: commit (amend): Remove appsettings.json from tracking and add to .gitignore
+[33m4db74a4[m HEAD@{98}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m4db74a4[m HEAD@{99}: rebase: fast-forward
+[33mb79bb4e[m HEAD@{100}: rebase: fast-forward
+[33m953dedb[m HEAD@{101}: rebase: fast-forward
+[33m8efcc04[m HEAD@{102}: rebase (start): checkout HEAD~5
+[33m4db74a4[m HEAD@{103}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m4db74a4[m HEAD@{104}: rebase (pick): Remove appsettings.json from tracking and add to .gitignore
+[33mb79bb4e[m HEAD@{105}: rebase (pick): adjust git ignore
+[33m953dedb[m HEAD@{106}: commit (amend): fix login with google
+[33ma1e958b[m HEAD@{107}: rebase: fast-forward
+[33m8efcc04[m HEAD@{108}: rebase (start): checkout HEAD~5
+[33m0bd804a[m HEAD@{109}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m0bd804a[m HEAD@{110}: rebase: fast-forward
+[33mf53045f[m HEAD@{111}: rebase: fast-forward
+[33ma1e958b[m HEAD@{112}: rebase: fast-forward
+[33m8efcc04[m HEAD@{113}: rebase (start): checkout HEAD~5
+[33m0bd804a[m HEAD@{114}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m0bd804a[m HEAD@{115}: rebase (pick): Remove appsettings.json from tracking and add to .gitignore
+[33mf53045f[m HEAD@{116}: rebase (pick): adjust git ignore
+[33ma1e958b[m HEAD@{117}: commit (amend): fix login with google
+[33m613c429[m HEAD@{118}: rebase: fast-forward
+[33m8efcc04[m HEAD@{119}: rebase (start): checkout HEAD~5
+[33m64d0b49[m HEAD@{120}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m64d0b49[m HEAD@{121}: rebase (start): checkout HEAD~5
+[33m64d0b49[m HEAD@{122}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m64d0b49[m HEAD@{123}: rebase (start): checkout HEAD~5
+[33m64d0b49[m HEAD@{124}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m64d0b49[m HEAD@{125}: rebase (start): checkout HEAD~5
+[33m64d0b49[m HEAD@{126}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m64d0b49[m HEAD@{127}: rebase (start): checkout HEAD~5
+[33m64d0b49[m HEAD@{128}: rebase (finish): returning to refs/heads/addMAUIProject
+[33m64d0b49[m HEAD@{129}: rebase (start): checkout HEAD~5
+[33m64d0b49[m HEAD@{130}: commit: Remove appsettings.json from tracking and add to .gitignore
+[33m897da76[m HEAD@{131}: commit: adjust git ignore
+[33m613c429[m HEAD@{132}: commit: fix login with google
+[33m8efcc04[m HEAD@{133}: checkout: moving from develop to addMAUIProject
+[33mcf0f2bb[m HEAD@{134}: commit: --remove duplicate
+[33md5946d6[m HEAD@{135}: commit (merge): merge_from_addProject
+[33maf502a8[m HEAD@{136}: checkout: moving from addMAUIProject to develop
+[33m8efcc04[m HEAD@{137}: commit: readd_ui
+[33mb5d8aa1[m HEAD@{138}: commit: add_docker
+[33me829d5d[m HEAD@{139}: checkout: moving from new-branch to addMAUIProject
+[33me829d5d[m HEAD@{140}: checkout: moving from addMAUIProject to new-branch
+[33me829d5d[m HEAD@{141}: checkout: moving from new-branch to addMAUIProject
+[33m4d1fb2f[m HEAD@{142}: checkout: moving from addMAUIProject to new-branch
+[33me829d5d[m HEAD@{143}: checkout: moving from 4d1fb2f8a07f114d07e331729e9e5a5efa16a2ce to addMAUIProject
+[33m4d1fb2f[m HEAD@{144}: checkout: moving from addMAUIProject to 4d1fb2f
+[33me829d5d[m HEAD@{145}: checkout: moving from develop to addMAUIProject
+[33maf502a8[m HEAD@{146}: checkout: moving from addMAUIProject to develop
+[33me829d5d[m HEAD@{147}: checkout: moving from develop to addMAUIProject
+[33maf502a8[m HEAD@{148}: commit: --addChanges
+[33mfd27ece[m HEAD@{149}: checkout: moving from addMAUIProject to develop
+[33me829d5d[m HEAD@{150}: reset: moving to HEAD
+[33me829d5d[m HEAD@{151}: checkout: moving from develop to addMAUIProject
+[33mfd27ece[m HEAD@{152}: checkout: moving from addMAUIProject to develop
+[33me829d5d[m HEAD@{153}: commit: del_chatgpt_UI
+[33m4d1fb2f[m HEAD@{154}: commit: addBlazorProject
+[33m136682a[m HEAD@{155}: commit: del_docker_compose
+[33mfd27ece[m HEAD@{156}: checkout: moving from develop to addMAUIProject
+[33mfd27ece[m HEAD@{157}: commit: addDockerCompose
+[33m8b46603[m HEAD@{158}: merge addRefreshToken: Fast-forward
+[33m96ec4a0[m HEAD@{159}: checkout: moving from addRefreshToken to develop
+[33m8b46603[m HEAD@{160}: commit: addDockerProject
+[33m433c502[m HEAD@{161}: checkout: moving from develop to addRefreshToken
+[33m96ec4a0[m HEAD@{162}: checkout: moving from addRefreshToken to develop
+[33m433c502[m HEAD@{163}: merge develop: Merge made by the 'ort' strategy.
+[33mc15423c[m HEAD@{164}: checkout: moving from develop to addRefreshToken
+[33m96ec4a0[m HEAD@{165}: commit: fixAITool
+[33m6261604[m HEAD@{166}: checkout: moving from addRefreshToken to develop
+[33mc15423c[m HEAD@{167}: checkout: moving from develop to addRefreshToken
+[33m6261604[m HEAD@{168}: checkout: moving from addRefreshToken to develop
+[33mc15423c[m HEAD@{169}: checkout: moving from develop to addRefreshToken
+[33m6261604[m HEAD@{170}: checkout: moving from addRefreshToken to develop
+[33mc15423c[m HEAD@{171}: commit: addLoginCommand
+[33m6261604[m HEAD@{172}: checkout: moving from develop to addRefreshToken
+[33m6261604[m HEAD@{173}: checkout: moving from addRefreshToken to develop
+[33m6261604[m HEAD@{174}: checkout: moving from develop to addRefreshToken
+[33m6261604[m HEAD@{175}: merge addRefreshToken: Fast-forward
+[33mc4cfccf[m HEAD@{176}: checkout: moving from addRefreshToken to develop
+[33m6261604[m HEAD@{177}: commit: --add_nginx
+[33m76fa97b[m HEAD@{178}: commit: --addDockerCompose
+[33m489f5fd[m HEAD@{179}: checkout: moving from develop to addRefreshToken
+[33mc4cfccf[m HEAD@{180}: checkout: moving from addRefreshToken to develop
+[33m489f5fd[m HEAD@{181}: reset: moving to HEAD
+[33m489f5fd[m HEAD@{182}: commit: addRefreshToken
+[33mc4cfccf[m HEAD@{183}: checkout: moving from develop to addRefreshToken
+[33mc4cfccf[m HEAD@{184}: checkout: moving from GetAllCurrentUsers to develop
+[33mabba45e[m HEAD@{185}: checkout: moving from develop to GetAllCurrentUsers
+[33mc4cfccf[m HEAD@{186}: merge loginWithThirdParty: Fast-forward
+[33mabba45e[m HEAD@{187}: checkout: moving from loginWithThirdParty to develop
+[33mc4cfccf[m HEAD@{188}: reset: moving to c4cfccf0
+[33me26bc9f[m HEAD@{189}: reset: moving to e26bc9f7
+[33me26bc9f[m HEAD@{190}: reset: moving to e26bc9f7
+[33mc4cfccf[m HEAD@{191}: reset: moving to c4cfccf0
+[33mc4cfccf[m HEAD@{192}: reset: moving to c4cfccf0
+[33me26bc9f[m HEAD@{193}: reset: moving to e26bc9f7
+[33mc4cfccf[m HEAD@{194}: reset: moving to c4cfccf0
+[33mc4cfccf[m HEAD@{195}: reset: moving to c4cfccf0
+[33me26bc9f[m HEAD@{196}: reset: moving to e26bc9f7
+[33m8364faf[m HEAD@{197}: reset: moving to 8364faf3
+[33mc4cfccf[m HEAD@{198}: reset: moving to c4cfccf0
+[33me26bc9f[m HEAD@{199}: reset: moving to e26bc9f7
+[33m8364faf[m HEAD@{200}: reset: moving to 8364faf3
+[33m870df2c[m HEAD@{201}: reset: moving to 870df2cd
+[33me26bc9f[m HEAD@{202}: reset: moving to e26bc9f7
+[33m870df2c[m HEAD@{203}: reset: moving to 870df2cd
+[33m8364faf[m HEAD@{204}: reset: moving to 8364faf3
+[33mc4cfccf[m HEAD@{205}: commit: --add_docker_copy
+[33m8364faf[m HEAD@{206}: checkout: moving from develop to loginWithThirdParty
+[33mabba45e[m HEAD@{207}: checkout: moving from loginWithThirdParty to develop
+[33m8364faf[m HEAD@{208}: checkout: moving from GetAllCurrentUsers to loginWithThirdParty
+[33mabba45e[m HEAD@{209}: checkout: moving from loginWithThirdParty to GetAllCurrentUsers
+[33m8364faf[m HEAD@{210}: commit: --addDockerFile
+[33mfd62e9d[m HEAD@{211}: commit: change_Docker_file
+[33m870df2c[m HEAD@{212}: commit: -add Docker file
+[33m6ad396e[m HEAD@{213}: commit: add_nginx
+[33mabba45e[m HEAD@{214}: merge develop: Fast-forward
+[33me26bc9f[m HEAD@{215}: checkout: moving from develop to loginWithThirdParty
+[33mabba45e[m HEAD@{216}: commit: adjust_login
+[33me26bc9f[m HEAD@{217}: merge loginWithThirdParty: Fast-forward
+[33me80e6e9[m HEAD@{218}: checkout: moving from loginWithThirdParty to develop
+[33me26bc9f[m HEAD@{219}: checkout: moving from develop to loginWithThirdParty
+[33me80e6e9[m HEAD@{220}: checkout: moving from loginWithThirdParty to develop
+[33me26bc9f[m HEAD@{221}: commit: addGoogleAuthExtensions
+[33m0744476[m HEAD@{222}: commit: remove csproj.user~loginFeature
+[33me80e6e9[m HEAD@{223}: checkout: moving from develop to loginWithThirdParty
+[33me80e6e9[m HEAD@{224}: commit: add csproj.user
+[33m69b0277[m HEAD@{225}: commit (merge): merge from loginFeature
+[33m1102f6b[m HEAD@{226}: commit: Remove .vs, bin, obj folders from git tracking
+[33mdd34aeb[m HEAD@{227}: checkout: moving from loginFeature to develop
+[33ma9b1a75[m HEAD@{228}: commit: --adjustLoginFeature
+[33m79083ff[m HEAD@{229}: commit: --adjustloginFeature
+[33m0cfb89d[m HEAD@{230}: commit: --add login Feature
+[33mce240e0[m HEAD@{231}: commit: Add git ignore
