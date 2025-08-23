@@ -176,21 +176,6 @@ public class AuthService : IAuthService
         }
     }
 
-    public async Task SignInWithTokenAsync(string token)
-    {
-        // l?u token b?ng ProtectedSessionStorage
-        await _sessionStorage.SetAsync(TokenKey, token);
-        _isAuthenticated = true;
-
-        // Clear cached user info to force refresh
-        _currentUser = null;
-
-        // Get user info immediately
-        _currentUser = await GetCurrentUserAsync();
-
-        // raise event T?I service
-        OnAuthenticationStateChanged?.Invoke(true);
-    }
 }
 
 public class UserInfo
