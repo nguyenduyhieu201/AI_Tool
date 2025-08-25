@@ -57,12 +57,12 @@ namespace Users.Application.Users.Commands.RefreshToken
             // Generate new access token
             var newAccessToken = _jwtService.GenerateToken(refreshToken.User);
 
-            return new RefreshTokenResponse
-            {
-                AccessToken = newAccessToken,
-                RefreshToken = newRefreshToken.Token,
-                ExpiresAt = newRefreshToken.ExpiresAt
-            };
+            // Return using record positional parameters
+            return new RefreshTokenResponse(
+                newAccessToken,
+                newRefreshToken.Token,
+                newRefreshToken.ExpiresAt
+            );
         }
     }
 }

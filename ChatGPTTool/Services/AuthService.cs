@@ -11,9 +11,11 @@ public interface IAuthService
     Task<UserInfo?> GetCurrentUserAsync();
     Task LogoutAsync();
     Task<string?> GetTokenAsync();
-    Task SignInWithTokenAsync(string token);
+    Task<string?> GetRefreshTokenAsync();
+    Task SignInWithTokenAsync(string token, string refreshToken);
     Task<bool> LoginAsync(string email, string password, string ipAddress);
     Task<bool> LoginWithGoogleAsync(string googleToken);
+    Task<bool> RefreshTokenAsync();
     event Action<bool>? OnAuthenticationStateChanged;
 }
 
@@ -24,6 +26,7 @@ public class AuthService : IAuthService
     private UserInfo? _currentUser;
     private bool? _isAuthenticated;
     private const string TokenKey = "jwt_token";
+    private const string RefreshTokenKey = "refresh_token";
     public event Action<bool>? OnAuthenticationStateChanged;
 
     public AuthService(ProtectedSessionStorage sessionStorage, IHttpClientFactory httpClientFactory)
@@ -34,7 +37,6 @@ public class AuthService : IAuthService
 
     public async Task<bool> IsAuthenticatedAsync()
     {
-        
         if (_isAuthenticated.HasValue)
             return _isAuthenticated.Value;
 
@@ -80,6 +82,19 @@ public class AuthService : IAuthService
             var result = await _sessionStorage.GetAsync<string>(TokenKey);
             return result.Success ? result.Value : null;
         }
+        catch (Exception ex)
+        {
+            return null;
+        }
+    }
+
+    public async Task<string?> GetRefreshTokenAsync()
+    {
+        try
+        {
+            var result = await _sessionStorage.GetAsync<string>(RefreshTokenKey);
+            return result.Success ? result.Value : null;
+        }
         catch
         {
             return null;
@@ -100,7 +115,7 @@ public class AuthService : IAuthService
                 var token = await response.Content.ReadAsStringAsync();
                 token = token.Trim('"'); // Remove JSON quotes
                 
-                await SignInWithTokenAsync(token);
+                await SignInWithTokenAsync(token, ""); // Login API không trả về refresh token
                 return true;
             }
             
@@ -123,11 +138,12 @@ public class AuthService : IAuthService
             
             if (response.IsSuccessStatusCode)
             {
-                var token = await response.Content.ReadAsStringAsync();
-                token = token.Trim('"'); // Remove JSON quotes
-                
-                await SignInWithTokenAsync(token);
-                return true;
+                var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
+                if (loginResponse != null)
+                {
+                    await SignInWithTokenAsync(loginResponse.AccessToken, loginResponse.RefreshToken);
+                    return true;
+                }
             }
             
             return false;
@@ -138,9 +154,54 @@ public class AuthService : IAuthService
         }
     }
 
-    public async Task SignInWithTokenAsync(string token)
+    public async Task<bool> RefreshTokenAsync()
+    {
+        try
+        {
+            var currentToken = await GetTokenAsync();
+            var refreshToken = await GetRefreshTokenAsync();
+            
+            if (string.IsNullOrEmpty(currentToken) || string.IsNullOrEmpty(refreshToken))
+            {
+                return false;
+            }
+
+            var httpClient = _httpClientFactory.CreateClient("API");
+            var refreshRequest = new
+            {
+                AccessToken = currentToken,
+                RefreshToken = refreshToken,
+                IpAddress = "127.0.0.1" // Có thể lấy IP thực tế nếu cần
+            };
+            
+            var response = await httpClient.PostAsJsonAsync("/api/user/refresh", refreshRequest);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var refreshResponse = await response.Content.ReadFromJsonAsync<RefreshTokenResponseDto>();
+                if (refreshResponse != null)
+                {
+                    await SignInWithTokenAsync(refreshResponse.AccessToken, refreshResponse.RefreshToken);
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task SignInWithTokenAsync(string token, string refreshToken)
     {
         await _sessionStorage.SetAsync(TokenKey, token);
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            await _sessionStorage.SetAsync(RefreshTokenKey, refreshToken);
+        }
+        
         _isAuthenticated = true;
         _currentUser = null; // Clear cache to force refresh
         _currentUser = await GetCurrentUserAsync();
@@ -152,6 +213,7 @@ public class AuthService : IAuthService
         try
         {
             await _sessionStorage.DeleteAsync(TokenKey);
+            await _sessionStorage.DeleteAsync(RefreshTokenKey);
             _currentUser = null;
             _isAuthenticated = false;
             OnAuthenticationStateChanged?.Invoke(false);
@@ -175,7 +237,6 @@ public class AuthService : IAuthService
             return true;
         }
     }
-
 }
 
 public class UserInfo
@@ -184,5 +245,20 @@ public class UserInfo
     public string Email { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
+}
+
+// DTOs để deserialize response từ API
+public class LoginResponseDto
+{
+    public string AccessToken { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+}
+
+public class RefreshTokenResponseDto
+{
+    public string AccessToken { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
 }
 

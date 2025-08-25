@@ -66,9 +66,10 @@ namespace ChatGPTTool.Controllers
 					return Redirect("/login?error=Invalid+JWT+response");
 				}
 
-				// 3) Không gọi JS interop ở Controller. Redirect về /login kèm jwt để trang Blazor lưu vào session
+				// 3) Redirect về /login kèm cả jwt và refresh token
 				var jwt = Uri.EscapeDataString(loginResponse.AccessToken);
-				return Redirect($"/login?jwt={jwt}");
+				var refreshToken = Uri.EscapeDataString(loginResponse.RefreshToken);
+				return Redirect($"/login?jwt={jwt}&refreshToken={refreshToken}");
 			}
 			catch (Exception ex)
 			{
