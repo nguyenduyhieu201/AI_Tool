@@ -79,7 +79,6 @@ namespace Users.Application.Users.Commands.Login
             );
             await _refreshTokenRepository.AddAsync(refreshTokenEntity, cancellationToken);
 
-
             return new LoginResponseDto(
                 user.Id,
                 user.FirstName,

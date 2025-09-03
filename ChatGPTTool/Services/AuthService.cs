@@ -13,9 +13,12 @@ public interface IAuthService
     Task<string?> GetTokenAsync();
     Task<string?> GetRefreshTokenAsync();
     Task SignInWithTokenAsync(string token, string refreshToken);
+    Task<bool> RegisterAsync(RegisterRequest request);
     Task<bool> LoginAsync(string email, string password, string ipAddress);
     Task<bool> LoginWithGoogleAsync(string googleToken);
     Task<bool> RefreshTokenAsync();
+    Task<bool> RequestPasswordResetAsync(string email);
+    Task<bool> ResetPasswordAsync(string token, string newPassword);
     event Action<bool>? OnAuthenticationStateChanged;
 }
 
@@ -108,20 +111,48 @@ public class AuthService : IAuthService
             var httpClient = _httpClientFactory.CreateClient("API");
             var loginRequest = new { Username = email, Password = password , IpAddress = ipAddress};
             
-            var response = await httpClient.PostAsJsonAsync("/api/auth/login", loginRequest);
+            var response = await httpClient.PostAsJsonAsync("/api/user/login", loginRequest);
             
             if (response.IsSuccessStatusCode)
             {
-                var token = await response.Content.ReadAsStringAsync();
-                token = token.Trim('"'); // Remove JSON quotes
-                
-                await SignInWithTokenAsync(token, ""); // Login API không trả về refresh token
-                return true;
+                // Prefer full DTO when backend returns LoginResponseDto
+                var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
+                if (loginResponse != null && !string.IsNullOrEmpty(loginResponse.AccessToken))
+                {
+                    await SignInWithTokenAsync(loginResponse.AccessToken, loginResponse.RefreshToken);
+                    return true;
+                }
+                // Fallback: raw token string
+                var token = (await response.Content.ReadAsStringAsync())?.Trim('"');
+                if (!string.IsNullOrEmpty(token))
+                {
+                    await SignInWithTokenAsync(token!, "");
+                    return true;
+                }
             }
             
             return false;
         }
         catch (Exception ex)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> RegisterAsync(RegisterRequest request)
+    {
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient("API");
+            var response = await httpClient.PostAsJsonAsync("/api/users/register", request);
+            if (!response.IsSuccessStatusCode)
+            {
+                return false;
+            }
+            // Auto-login after successful registration
+            return await LoginAsync(request.Email, request.Password, "127.0.0.1");
+        }
+        catch
         {
             return false;
         }
@@ -237,6 +268,38 @@ public class AuthService : IAuthService
             return true;
         }
     }
+
+    public async Task<bool> RequestPasswordResetAsync(string email)
+    {
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient("API");
+            var request = new { Email = email };
+            
+            var response = await httpClient.PostAsJsonAsync("/api/users/forgot-password", request);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+    {
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient("API");
+            var request = new { Token = token, NewPassword = newPassword };
+            
+            var response = await httpClient.PostAsJsonAsync("/api/users/reset-password", request);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
 
 public class UserInfo
@@ -260,5 +323,14 @@ public class RefreshTokenResponseDto
     public string AccessToken { get; set; } = string.Empty;
     public string RefreshToken { get; set; } = string.Empty;
     public DateTime ExpiresAt { get; set; }
+}
+
+public class RegisterRequest
+{
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
 }
 

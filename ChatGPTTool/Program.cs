@@ -18,8 +18,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // Add Google OAuth Service
 builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 
-// Add Test API Service
-builder.Services.AddScoped<ITestApiService, TestApiService>();
+
 
 // Add HttpInterceptor
 builder.Services.AddTransient<HttpInterceptor>();

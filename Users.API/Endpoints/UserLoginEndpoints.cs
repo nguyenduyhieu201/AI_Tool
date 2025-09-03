@@ -31,7 +31,7 @@ public class UserLoginEndpoints : ICarterModule
                 return Results.Unauthorized();
             }
 
-            return Results.Ok(user.AccessToken);
+            return Results.Ok(user);
         })
         .WithName("LoginUser");
 

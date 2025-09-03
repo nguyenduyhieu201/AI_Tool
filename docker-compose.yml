@@ -13,6 +13,15 @@ services:
       - sqlserver_data:/var/opt/mssql
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
   users.api:
     build:
       context: .
@@ -22,10 +31,12 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=AIToolDb;User=sa;Password=SwN12345678;TrustServerCertificate=True
+      - REDIS_CONNECTION=redis:6379
     ports:
       - "5011:80"
     depends_on:
       - sqlserver
+      - redis
     restart: unless-stopped
 
   chatgpttool:
@@ -56,3 +67,4 @@ services:
 
 volumes:
   sqlserver_data:
+  redis_data:
