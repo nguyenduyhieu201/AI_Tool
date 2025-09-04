@@ -31,7 +31,7 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=AIToolDb;User=sa;Password=SwN12345678;TrustServerCertificate=True
-      - REDIS_CONNECTION=redis:6379
+      - ConnectionStrings__Redis=redis:6379,abortConnect=false,connectRetry=3,connectTimeout=5000
     ports:
       - "5011:80"
     depends_on:

@@ -5,46 +5,56 @@ using BuildingBlock.Cache;
 using Users.Application.Contracts.Repositories;
 using Users.Application.Contracts.Security;
 using Users.Domain.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Users.Infrastructure.Security
 {
     public class RefreshTokenCacheService : IRefreshTokenCacheService
     {
         private readonly IRedisService _redisService;
+        private readonly ILogger<RefreshTokenCacheService> _logger;
         private const string CacheKeyPrefix = "refresh_token:";
 
-        public RefreshTokenCacheService(IRedisService redisService)
+        public RefreshTokenCacheService(IRedisService redisService, ILogger<RefreshTokenCacheService> logger)
         {
             _redisService = redisService;
+            _logger = logger;
         }
 
         public async Task<RefreshToken?> GetTokenAsync(string token, CancellationToken cancellationToken = default)
         {
-            var cacheKey = $"{CacheKeyPrefix}{token}";
-
-            // Only check Redis cache
-            var cachedToken = await _redisService.GetAsync<RefreshToken>(cacheKey);
-            return cachedToken;
+            try
+            {
+                var cacheKey = $"{CacheKeyPrefix}{token}";
+                var cachedToken = await _redisService.GetAsync<RefreshToken>(cacheKey);
+                return cachedToken;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to get token from cache: {Token}", token);
+                return null; // Return null on cache failure - fallback to database
+            }
         }
 
         public async Task<bool> StoreTokenAsync(RefreshToken token, CancellationToken cancellationToken = default)
         {
             try
             {
-                // Only save to Redis cache
                 var cacheKey = $"{CacheKeyPrefix}{token.Token}";
                 var ttl = token.ExpiresAt - DateTime.UtcNow;
                 
                 if (ttl > TimeSpan.Zero)
                 {
                     await _redisService.SetAsync(cacheKey, token, ttl);
+                    _logger.LogDebug("Token cached successfully: {Token}", token.Token);
                 }
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                _logger.LogWarning(ex, "Failed to store token in cache: {Token}", token.Token);
+                return false; // Cache failure is not critical - database is still available
             }
         }
 
@@ -54,26 +64,27 @@ namespace Users.Infrastructure.Security
             {
                 var cacheKey = $"{CacheKeyPrefix}{token.Token}";
 
-                // Only update Redis cache
                 if (token.IsActive)
                 {
                     var ttl = token.ExpiresAt - DateTime.UtcNow;
                     if (ttl > TimeSpan.Zero)
                     {
                         await _redisService.SetAsync(cacheKey, token, ttl);
+                        _logger.LogDebug("Token updated in cache: {Token}", token.Token);
                     }
                 }
                 else
                 {
-                    // Remove from cache if token is revoked
                     await _redisService.DeleteAsync(cacheKey);
+                    _logger.LogDebug("Token removed from cache: {Token}", token.Token);
                 }
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                _logger.LogWarning(ex, "Failed to update token in cache: {Token}", token.Token);
+                return false; // Cache failure is not critical
             }
         }
 
@@ -82,15 +93,14 @@ namespace Users.Infrastructure.Security
             try
             {
                 var cacheKey = $"{CacheKeyPrefix}{token}";
-
-                // Only remove from Redis cache
                 await _redisService.DeleteAsync(cacheKey);
-
+                _logger.LogDebug("Token revoked from cache: {Token}", token);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                _logger.LogWarning(ex, "Failed to revoke token from cache: {Token}", token);
+                return false; // Cache failure is not critical
             }
         }
 
@@ -100,10 +110,12 @@ namespace Users.Infrastructure.Security
             {
                 // This method requires database access, so it's not suitable for cache-only service
                 // The repository should handle this operation
+                _logger.LogDebug("RevokeAllUserTokensAsync called for user: {UserId}", userId);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to revoke all user tokens from cache: {UserId}", userId);
                 return false;
             }
         }
@@ -114,10 +126,11 @@ namespace Users.Infrastructure.Security
             {
                 // Redis will automatically expire keys based on TTL
                 // No manual cleanup needed for cache service
+                _logger.LogDebug("CleanupExpiredTokensAsync called");
             }
-            catch
+            catch (Exception ex)
             {
-                // Log error but don't throw
+                _logger.LogWarning(ex, "Failed to cleanup expired tokens from cache");
             }
         }
     }

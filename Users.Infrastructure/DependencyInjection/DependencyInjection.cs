@@ -21,11 +21,17 @@ namespace Users.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // Add Redis Connection
+            // Add Redis Connection with retry configuration
             services.AddSingleton<IConnectionMultiplexer>(provider =>
             {
                 var redisConnection = configuration.GetConnectionString("Redis") ?? "localhost:6379";
-                return ConnectionMultiplexer.Connect(redisConnection);
+                var configurationOptions = ConfigurationOptions.Parse(redisConnection);
+                configurationOptions.AbortOnConnectFail = false;  // Don't abort on connect fail
+                configurationOptions.ConnectRetry = 3;            // Retry 3 times
+                configurationOptions.ConnectTimeout = 5000;       // 5 second timeout
+                configurationOptions.SyncTimeout = 5000;          // 5 second sync timeout
+                configurationOptions.AsyncTimeout = 5000;         // 5 second async timeout
+                return ConnectionMultiplexer.Connect(configurationOptions);
             });
 
             // Add Redis Service

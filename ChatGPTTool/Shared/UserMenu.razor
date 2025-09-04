@@ -5,33 +5,49 @@
 
 @if (isAuthenticated != null && currentUser != null)
 {
-    <div class="user-menu dropdown">
-        <button class="btn btn-outline-light dropdown-toggle" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="oi oi-person" aria-hidden="true"></span>
-            @currentUser.Email
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
-            <li>
-                <a class="dropdown-item" href="/profile">
-                    <span class="oi oi-person" aria-hidden="true"></span>
-                    Thông tin cá nhân
-                </a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-                <button class="dropdown-item" @onclick="HandleLogout">
-                    <span class="oi oi-account-logout" aria-hidden="true"></span>
-                    Đăng xuất
-                </button>
-            </li>
-        </ul>
+    <div class="user-menu-container d-flex">
+        <!-- Dropdown 1: Thông tin -->
+        <div class="dropdown me-2">
+            <button class="btn btn-outline-light dropdown-toggle" type="button" id="userInfoDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle me-1"></i> Thông tin
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userInfoDropdown">
+                <li>
+                    <a class="dropdown-item" href="/profile">
+                        <i class="bi bi-person"></i> Thông tin cá nhân
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="/settings">
+                        <i class="bi bi-gear"></i> Cài đặt
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Dropdown 2: Đăng xuất -->
+        <div class="dropdown">
+            <button class="btn btn-outline-light dropdown-toggle" type="button" id="logoutDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-box-arrow-right me-1"></i> Đăng xuất
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="logoutDropdown">
+                <li class="dropdown-item-text">
+                    <small class="text-muted">@currentUser.Email</small>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                    <button class="dropdown-item" @onclick="HandleLogout">
+                        <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                    </button>
+                </li>
+            </ul>
+        </div>
     </div>
 }
 else if (isAuthenticated == false)
 {
     <a class="btn btn-outline-light" href="/login">
-        <span class="oi oi-account-login" aria-hidden="true"></span>
-        Đăng nhập
+        <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
     </a>
 }
 
@@ -47,7 +63,10 @@ else if (isAuthenticated == false)
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await CheckAuthState();
+        if (firstRender)
+        {
+            await CheckAuthState();
+        }
     }
 
     private async Task CheckAuthState()
@@ -57,6 +76,11 @@ else if (isAuthenticated == false)
         {
             currentUser = await AuthService.GetCurrentUserAsync();
         }
+        else
+        {
+            currentUser = null;
+        }
+
         StateHasChanged();
     }
 
@@ -65,13 +89,13 @@ else if (isAuthenticated == false)
         isAuthenticated = authenticated;
         if (authenticated)
         {
-            // Khi đăng nhập thành công, lấy user info ngay lập tức
             currentUser = await AuthService.GetCurrentUserAsync();
         }
         else
         {
             currentUser = null;
         }
+
         await InvokeAsync(StateHasChanged);
     }
 
@@ -86,4 +110,3 @@ else if (isAuthenticated == false)
         AuthService.OnAuthenticationStateChanged -= OnAuthStateChanged;
     }
 }
-
