@@ -202,8 +202,7 @@ else
         // TODO: Load chat history from API
         chatHistory = new List<ChatSession>
         {
-            new ChatSession { Id = "1", Title = "Cuộc trò chuyện về AI", Messages = new List<ChatMessage>() },
-            new ChatSession { Id = "2", Title = "Hỏi về lập trình", Messages = new List<ChatMessage>() }
+            new ChatSession { Id = "1", Title = "Cuộc trò chuyện thử nghiệm", Messages = new List<ChatMessage>() },
         };
     }
 
@@ -244,7 +243,7 @@ else
             currentChat.Messages.Add(new ChatMessage
             {
                 Id = Guid.NewGuid().ToString(),
-                Content = "Đây là phản hồi từ AI. Tính năng này sẽ được implement sau.",
+                Content = "Nếu trường hợp đó xảy ra, chúng ta nên thuyết phục bà Hoa với bà Hải xuống xe",
                 IsUser = false,
                 Timestamp = DateTime.UtcNow
             });

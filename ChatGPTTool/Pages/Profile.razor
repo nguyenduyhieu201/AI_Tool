@@ -141,11 +141,63 @@ else
             Navigation.NavigateTo("/login");
             return;
         }
-        
-        currentUser = await AuthService.GetCurrentUserAsync();
-        if (currentUser != null)
+
+        // Ưu tiên lấy thông tin chi tiết người dùng từ API để đồng bộ backend
+        try
         {
-            updateModel.Name = currentUser.Name;
+            var token = await AuthService.GetTokenAsync();
+            if (string.IsNullOrEmpty(token))
+            {
+                Navigation.NavigateTo("/login");
+                return;
+            }
+
+            // Parse userId từ JWT (sub hoặc nameidentifier)
+            currentUser = await AuthService.GetCurrentUserAsync();
+            if (currentUser == null || string.IsNullOrWhiteSpace(currentUser.Id))
+            {
+                Navigation.NavigateTo("/login");
+                return;
+            }
+
+            var http = HttpClientFactory.CreateClient("API");
+            http.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var apiResponse = await http.GetAsync($"/api/users/{currentUser.Id}");
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                var detail = await apiResponse.Content.ReadFromJsonAsync<UserDetailDto>();
+                if (detail != null)
+                {
+                    // Map về currentUser hiển thị UI
+                    currentUser = new UserInfo
+                    {
+                        Id = detail.Id.ToString(),
+                        Email = detail.Email,
+                        Name = $"{detail.FirstName} {detail.LastName}".Trim(),
+                        Role = "User"
+                    };
+                    updateModel.Name = currentUser.Name;
+                }
+            }
+            else
+            {
+                // fallback JWT claims
+                currentUser = await AuthService.GetCurrentUserAsync();
+                if (currentUser != null)
+                {
+                    updateModel.Name = currentUser.Name;
+                }
+            }
+        }
+        catch
+        {
+            currentUser = await AuthService.GetCurrentUserAsync();
+            if (currentUser != null)
+            {
+                updateModel.Name = currentUser.Name;
+            }
         }
     }
 
@@ -266,6 +318,16 @@ else
         
         [Compare(nameof(NewPassword), ErrorMessage = "Mật khẩu xác nhận không khớp")]
         public string ConfirmPassword { get; set; } = string.Empty;
+    }
+
+    // DTO khớp với GetUserEndpoints trả về
+    private sealed class UserDetailDto
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
     }
 }
 

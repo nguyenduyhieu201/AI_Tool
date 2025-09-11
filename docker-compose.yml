@@ -39,6 +39,43 @@ services:
       - redis
     restart: unless-stopped
 
+  mongo:
+    image: mongo:6.0
+    container_name: chatgpt-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: chatgpt-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    restart: unless-stopped
+
+  chatgpt-api:
+    build:
+      context: .
+      dockerfile: ChatGPT.API/Dockerfile
+    container_name: chatgpt-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Mongo=mongodb://mongo:27017
+      - MongoDatabase=chatgpt_service
+    ports:
+      - "5013:80"
+    depends_on:
+      - mongo
+      - rabbitmq
+    restart: unless-stopped
+
+
   chatgpttool:
     build:
       context: .
@@ -62,9 +99,11 @@ services:
       # - ./API.Gateways/ssl:/etc/nginx/ssl:ro
     depends_on:
       - users.api
+      - chatgpt-api
       - chatgpttool
     restart: unless-stopped
 
 volumes:
   sqlserver_data:
   redis_data:
+  mongo_data:

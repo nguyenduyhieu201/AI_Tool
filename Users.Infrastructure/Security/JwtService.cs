@@ -28,9 +28,11 @@ namespace Users.Infrastructure.Security
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.GivenName, user.FirstName),
                 new Claim(ClaimTypes.Surname, user.LastName),
+                new Claim("name", $"{user.FirstName} {user.LastName}"),
                 new Claim(ClaimTypes.Role, "User")
             };
 

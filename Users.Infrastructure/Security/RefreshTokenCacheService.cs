@@ -15,6 +15,20 @@ namespace Users.Infrastructure.Security
         private readonly ILogger<RefreshTokenCacheService> _logger;
         private const string CacheKeyPrefix = "refresh_token:";
 
+        // Lightweight DTO to avoid serializing full EF entities with navigation properties
+        private sealed class CachedRefreshToken
+        {
+            public string Token { get; init; } = string.Empty;
+            public DateTime ExpiresAt { get; init; }
+            public DateTime CreatedAt { get; init; }
+            public string CreatedByIp { get; init; } = string.Empty;
+            public Guid UserId { get; init; }
+            public DateTime? RevokedAt { get; init; }
+            public string? RevokedByIp { get; init; }
+            public string? ReplacedByToken { get; init; }
+            public string? ReasonRevoked { get; init; }
+        }
+
         public RefreshTokenCacheService(IRedisService redisService, ILogger<RefreshTokenCacheService> logger)
         {
             _redisService = redisService;
@@ -25,14 +39,13 @@ namespace Users.Infrastructure.Security
         {
             try
             {
-                var cacheKey = $"{CacheKeyPrefix}{token}";
-                var cachedToken = await _redisService.GetAsync<RefreshToken>(cacheKey);
-                return cachedToken;
+                // We store DTO in cache; repository reads DB, so return null here.
+                return null;
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to get token from cache: {Token}", token);
-                return null; // Return null on cache failure - fallback to database
+                return null;
             }
         }
 
@@ -42,10 +55,22 @@ namespace Users.Infrastructure.Security
             {
                 var cacheKey = $"{CacheKeyPrefix}{token.Token}";
                 var ttl = token.ExpiresAt - DateTime.UtcNow;
-                
+
                 if (ttl > TimeSpan.Zero)
                 {
-                    await _redisService.SetAsync(cacheKey, token, ttl);
+                    var dto = new CachedRefreshToken
+                    {
+                        Token = token.Token,
+                        ExpiresAt = token.ExpiresAt,
+                        CreatedAt = token.CreatedAt,
+                        CreatedByIp = token.CreatedByIp,
+                        UserId = token.UserId,
+                        RevokedAt = null,
+                        RevokedByIp = null,
+                        ReplacedByToken = null,
+                        ReasonRevoked = null
+                    };
+                    await _redisService.SetAsync(cacheKey, dto, ttl);
                     _logger.LogDebug("Token cached successfully: {Token}", token.Token);
                 }
 
@@ -69,7 +94,19 @@ namespace Users.Infrastructure.Security
                     var ttl = token.ExpiresAt - DateTime.UtcNow;
                     if (ttl > TimeSpan.Zero)
                     {
-                        await _redisService.SetAsync(cacheKey, token, ttl);
+                        var dto = new CachedRefreshToken
+                        {
+                            Token = token.Token,
+                            ExpiresAt = token.ExpiresAt,
+                            CreatedAt = token.CreatedAt,
+                            CreatedByIp = token.CreatedByIp,
+                            UserId = token.UserId,
+                            RevokedAt = null,
+                            RevokedByIp = null,
+                            ReplacedByToken = token.ReplacedByToken,
+                            ReasonRevoked = null
+                        };
+                        await _redisService.SetAsync(cacheKey, dto, ttl);
                         _logger.LogDebug("Token updated in cache: {Token}", token.Token);
                     }
                 }
