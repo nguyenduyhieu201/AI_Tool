@@ -1,28 +1,11 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 80
-ENV ASPNETCORE_URLS=http://+:80
-
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-COPY ./ChatGPT.API/ChatGPT.API.csproj ChatGPT.API/
-COPY ./ChatGPT.Application/ChatGPT.Application.csproj ChatGPT.Application/
-COPY ./ChatGPT.Infrastructure/ChatGPT.Infrastructure.csproj ChatGPT.Infrastructure/
-COPY ./ChatGPT.Domain/ChatGPT.Domain.csproj ChatGPT.Domain/
-COPY ./BuildingBlock/BuildingBlock.csproj BuildingBlock/
-RUN dotnet restore ChatGPT.API/ChatGPT.API.csproj
-COPY . .
-RUN dotnet publish ChatGPT.API/ChatGPT.API.csproj -c Release -o /app/publish
-
-FROM base AS final
-WORKDIR /app
-COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "ChatGPT.API.dll"]
-
 # Use the official .NET 8 runtime as base image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
 WORKDIR /app
 EXPOSE 80
+ENV ASPNETCORE_URLS=http://+:80
+
+# Install curl for health checks
+RUN apk add --no-cache curl
 
 # Use the official .NET 8 SDK for building
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build

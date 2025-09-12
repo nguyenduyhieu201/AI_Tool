@@ -29,6 +29,8 @@ var app = builder.Build();
 // Extract userId from JWT into HttpContext.Items["UserId"]
 app.UseUserContext();
 
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 app.MapPost("/api/threads", async (HttpContext ctx, CreateThreadRequest req, IThreadService svc, CancellationToken ct) =>
 {
