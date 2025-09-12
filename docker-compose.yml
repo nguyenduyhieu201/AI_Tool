@@ -1,7 +1,6 @@
 ﻿services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=SwN12345678
@@ -15,7 +14,6 @@
 
   redis:
     image: redis:7-alpine
-    container_name: redis
     ports:
       - "6379:6379"
     volumes:
@@ -28,7 +26,6 @@
     build:
       context: .
       dockerfile: Users.API/Dockerfile
-    container_name: users-api
     environment:
       - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_ENVIRONMENT=Development
@@ -45,7 +42,6 @@
 
   mongo:
     image: mongo:6.0
-    container_name: chatgpt-mongo
     ports:
       - "27017:27017"
     volumes:
@@ -56,7 +52,6 @@
 
   rabbitmq:
     image: rabbitmq:3.13-management
-    container_name: chatgpt-rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -71,7 +66,6 @@
     build:
       context: ./ChatGPT.API
       dockerfile: Dockerfile
-    container_name: chatgpt-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -93,8 +87,9 @@
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 40s
+      retries: 5
+      start_period: 60s
+
     networks:
       - ai-tool-network
 
@@ -103,7 +98,6 @@
     build:
       context: .
       dockerfile: ChatGPTTool/Dockerfile
-    container_name: chatgpttool
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -115,7 +109,6 @@
 
   nginx:
     image: nginx:latest
-    container_name: nginx
     ports:
       - "5010:80"
     volumes:
