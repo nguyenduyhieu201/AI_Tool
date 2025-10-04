@@ -1,4 +1,4 @@
-using MediatR;
+using BuildingBlock.CQRS;
 
 namespace ChatGPT.API.Features.StreamChat.Commands;
 
@@ -6,7 +6,7 @@ public record StreamChatCommand(
     string UserId,
     string Message,
     string? ConversationId = null
-) : IRequest<IAsyncEnumerable<string>>;
+) : ICommand<IAsyncEnumerable<string>>;
 
 public record StreamChatChunk(
     string Content,

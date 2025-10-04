@@ -1,4 +1,4 @@
-using MediatR;
+using BuildingBlock.CQRS;
 
 namespace ChatGPT.API.Features.SendMessage.Commands;
 
@@ -6,7 +6,7 @@ public record SendMessageCommand(
     string UserId,
     string Message,
     string? ConversationId = null
-) : IRequest<SendMessageResponse>;
+) : ICommand<SendMessageResponse>;
 
 public record SendMessageResponse(
     string Response,

@@ -32,6 +32,17 @@ builder.Services.AddHttpClient("API", client =>
 })
 .AddHttpMessageHandler<HttpInterceptor>(); // Thêm interceptor
 
+// HttpClient to Gateway (Nginx) for ChatGPT.API
+builder.Services.AddHttpClient("Gateway", client =>
+{
+    var inContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    var gatewayBaseUrl = inContainer ? "http://nginx" : "http://localhost:5010"; // Nginx gateway
+    client.BaseAddress = new Uri(gatewayBaseUrl);
+})
+.AddHttpMessageHandler<HttpInterceptor>();
+
+builder.Services.AddScoped<IChatApiClient, ChatApiClient>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

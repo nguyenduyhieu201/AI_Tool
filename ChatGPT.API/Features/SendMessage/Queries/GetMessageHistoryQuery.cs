@@ -1,4 +1,4 @@
-using MediatR;
+using BuildingBlock.CQRS;
 
 namespace ChatGPT.API.Features.SendMessage.Queries;
 
@@ -6,7 +6,7 @@ public record GetMessageHistoryQuery(
     string UserId,
     string ConversationId,
     int Limit = 50
-) : IRequest<GetMessageHistoryResponse>;
+) : IQuery<GetMessageHistoryResponse>;
 
 public record GetMessageHistoryResponse(
     List<MessageDto> Messages,

@@ -1,10 +1,14 @@
 using BuildingBlock.Domain;
+using BuildingBlock.Behavior;
 using ChatGPT.Application.DTOs;
 using ChatGPT.Application.Services;
 using ChatGPT.Infrastructure.Persistence;
 using ChatGPT.Infrastructure.Providers;
 using ChatGPT.Infrastructure.Services;
 using ChatGPT.API.Middleware;
+using ChatGPT.API.Shared.Services;
+using FluentValidation;
+using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,11 +26,33 @@ builder.Services.AddSingleton<IAIProvider, DummyProvider>();
 builder.Services.AddScoped<IThreadService, ThreadService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 
+// Dummy/in-memory services for local testing; replace with real implementations later
+builder.Services.AddSingleton<IRedisService, InMemoryRedisService>();
+builder.Services.AddSingleton<IUserServiceClient, DummyUserServiceClient>();
+builder.Services.AddSingleton<IChatGptService, DummyChatGptService>();
+
+// MediatR + Behaviors (Validation & Logging)
+builder.Services.AddMediatR(config =>
+{
+    // Scan API assembly to discover Feature handlers
+    config.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    config.AddOpenBehavior(typeof(ValidationBehavior<,>));
+    config.AddOpenBehavior(typeof(LoggingBehavior<,>));
+});
+
+// FluentValidation - scan validators in API assembly (Feature validators)
+builder.Services.AddValidatorsFromAssemblyContaining<ChatGPT.API.Features.CreateConversation.Validators.CreateConversationValidator>();
+
 builder.Services.AddEndpointsApiExplorer();
+
+// Enable Session (needed by UserContext middleware when session exists)
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
 
 var app = builder.Build();
 
 // Extract userId from JWT into HttpContext.Items["UserId"]
+app.UseSession();
 app.UseUserContext();
 
 // Health check endpoint

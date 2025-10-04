@@ -1,5 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace ChatGPT.API.Middleware;
 
@@ -18,16 +20,21 @@ public class UserContextMiddleware
         string? userId = context.User?.FindFirstValue(ClaimTypes.NameIdentifier)
                            ?? context.User?.FindFirst("sub")?.Value;
 
-        // Try get JWT from session if available
-        if (string.IsNullOrEmpty(userId) && context.Session != null)
+        // Try get JWT from session if available (only if Session is configured)
+        if (string.IsNullOrEmpty(userId))
         {
-            var sessionToken = context.Session.GetString("jwt")
-                               ?? context.Session.GetString("Jwt")
-                               ?? context.Session.GetString("AccessToken")
-                               ?? context.Session.GetString("AuthToken");
-            if (!string.IsNullOrWhiteSpace(sessionToken))
+            var sessionFeature = context.Features.Get<ISessionFeature>();
+            var session = sessionFeature?.Session;
+            if (session != null)
             {
-                TryExtractUserId(sessionToken!, out userId);
+                var sessionToken = session.GetString("jwt")
+                                   ?? session.GetString("Jwt")
+                                   ?? session.GetString("AccessToken")
+                                   ?? session.GetString("AuthToken");
+                if (!string.IsNullOrWhiteSpace(sessionToken))
+                {
+                    TryExtractUserId(sessionToken!, out userId);
+                }
             }
         }
 

@@ -1,11 +1,11 @@
-using MediatR;
+using BuildingBlock.CQRS;
 
 namespace ChatGPT.API.Features.CreateConversation.Commands;
 
 public record CreateConversationCommand(
     string UserId,
     string Title = "New Conversation"
-) : IRequest<CreateConversationResponse>;
+) : ICommand<CreateConversationResponse>;
 
 public record CreateConversationResponse(
     string ConversationId,
