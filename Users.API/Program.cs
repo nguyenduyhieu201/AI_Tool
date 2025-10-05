@@ -17,6 +17,8 @@ using BuildingBlock.Behavior;
 using Users.Application.Users.Commands.Login;
 using BuildingBlock.Exceptions.Handler;
 using Users.Infrastructure.Security.ExternalAuth.Google;
+using StackExchange.Redis;
+using BuildingBlock.Cache;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,14 +59,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 		builder.Configuration.GetConnectionString("DefaultConnection"),
 		b => b.MigrationsAssembly("Users.Infrastructure")));
 
-// Add Repositories
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-// Add Security Services
-builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
-// Bind GoogleAuth options
-builder.Services.Configure<GoogleAuthOptions>(builder.Configuration.GetSection("GoogleAuth"));
+
 
 // Add JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -83,11 +80,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 		};
 	});
 
+
+
 // Add Application Services
 builder.Services.AddApplicationServices();
 
 // Add Infrastructure Services
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 

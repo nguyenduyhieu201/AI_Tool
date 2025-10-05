@@ -8,6 +8,7 @@ using System.Text;
 using Users.Domain.Models;
 using MediatR;
 using Users.Application.Users.Commands.Login;
+using Users.Application.Users.Commands.RefreshToken;
 using Carter;
 
 namespace Users.API.Endpoints;
@@ -30,11 +31,36 @@ public class UserLoginEndpoints : ICarterModule
                 return Results.Unauthorized();
             }
 
-            return Results.Ok(user.AccessToken);
+            return Results.Ok(user);
         })
         .WithName("LoginUser");
+
+        // Thêm endpoint refresh token theo pattern có sẵn
+        group.MapPost("/refresh", async (
+            [FromBody] RefreshTokenRequest request,
+            ISender sender) =>
+        {
+            try
+            {
+                var result = await sender.Send(new RefreshTokenCommand(
+                    request.AccessToken, 
+                    request.RefreshToken, 
+                    request.IpAddress));
+                
+                return Results.Ok(result);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Results.Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest($"Error refreshing token: {ex.Message}");
+            }
+        })
+        .WithName("RefreshToken")
+        .Produces<Users.Application.Users.Commands.RefreshToken.RefreshTokenResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
-
-
-
 } 

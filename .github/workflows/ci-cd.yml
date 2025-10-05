@@ -1,0 +1,161 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Run tests
+      run: |
+        echo "Running tests..."
+        # Thêm test commands ở đây nếu có
+        # dotnet test
+
+    - name: Build and push Users.API image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Users.API/Dockerfile
+        push: true
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/users-api:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build and push ChatGPT.API image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./ChatGPT.API
+        file: ./ChatGPT.API/Dockerfile
+        push: true
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/chatgpt-api:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build and push ChatGPTTool image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./ChatGPTTool/Dockerfile
+        push: true
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/chatgpttool:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Generate deployment artifacts
+      run: |
+        mkdir -p deployment
+        echo "${{ github.sha }}" > deployment/version.txt
+        echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/users-api:${{ github.sha }}" > deployment/users-api-image.txt
+        echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/chatgpt-api:${{ github.sha }}" > deployment/chatgpt-api-image.txt
+        echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/chatgpttool:${{ github.sha }}" > deployment/chatgpttool-image.txt
+
+    - name: Upload deployment artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: deployment-files
+        path: deployment/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Download deployment artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: deployment-files
+
+    - name: Deploy to production server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.PROD_HOST }}
+        username: ${{ secrets.PROD_USER }}
+        key: ${{ secrets.PROD_SSH_KEY }}
+        port: ${{ secrets.PROD_PORT }}
+        script: |
+          # Tạo thư mục deployment nếu chưa có
+          mkdir -p /opt/aitool/deployment
+          
+          # Download deployment files
+          cd /opt/aitool
+          
+          # Login vào registry
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # Pull images mới
+          docker pull $(cat deployment/users-api-image.txt)
+          docker pull $(cat deployment/chatgpt-api-image.txt)
+          docker pull $(cat deployment/chatgpttool-image.txt)
+          
+          # Stop services cũ
+          docker compose -f docker-compose.prod.yml down
+          
+          # Update docker-compose.prod.yml với images mới
+          export USERS_API_IMAGE=$(cat deployment/users-api-image.txt)
+          export CHATGPT_API_IMAGE=$(cat deployment/chatgpt-api-image.txt)
+          export CHATGPTTOOL_IMAGE=$(cat deployment/chatgpttool-image.txt)
+          
+          # Backup docker-compose.prod.yml
+          cp docker-compose.prod.yml docker-compose.prod.yml.backup
+          
+          # Update images trong docker-compose.prod.yml
+          sed -i "s|image: .*/users-api:.*|image: $USERS_API_IMAGE|g" docker-compose.prod.yml
+          sed -i "s|image: .*/chatgpt-api:.*|image: $CHATGPT_API_IMAGE|g" docker-compose.prod.yml
+          sed -i "s|image: .*/chatgpttool:.*|image: $CHATGPTTOOL_IMAGE|g" docker-compose.prod.yml
+          
+          # Start services mới
+          docker compose -f docker-compose.prod.yml up -d
+          
+          # Health check
+          sleep 30
+          ./scripts/health-check.sh
+          
+          # Cleanup old images
+          docker image prune -f
+
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Deployment successful!"
+        else
+          echo "❌ Deployment failed!"
+        fi

@@ -3,6 +3,7 @@
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
+@inject IChatApiClient ChatApi
 
 <PageTitle>ChatGPT Tool</PageTitle>
 
@@ -48,6 +49,19 @@ else if (currentUser == null)
 else
 {
     <div class="container-fluid">
+        <!-- Tabs: Văn bản / Hình ảnh -->
+        <ul class="nav nav-tabs mt-3 mb-3">
+            <li class="nav-item">
+                <button class="nav-link @(activeTab == Tab.Text ? "active" : null)" @onclick="() => activeTab = Tab.Text">
+                    <i class="oi oi-document me-2"></i>Văn bản
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link @(activeTab == Tab.Images ? "active" : null)" @onclick="() => activeTab = Tab.Images">
+                    <i class="oi oi-image me-2"></i>Hình ảnh
+                </button>
+            </li>
+        </ul>
         <div class="row">
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 d-none d-md-block">
@@ -61,13 +75,30 @@ else
                     </div>
                     <div class="card-body p-0">
                         <div class="list-group list-group-flush">
-                            <button class="list-group-item list-group-item-action active" @onclick="() => currentChat = null">
+                            <button class="list-group-item list-group-item-action active" @onclick="OpenNewChatModal">
                                 <i class="oi oi-plus me-2"></i>
                                 Cuộc trò chuyện mới
                             </button>
                             @if (chatHistory.Any())
                             {
-                                @foreach (var chat in chatHistory)
+                                <div class="list-group-item bg-light fw-bold">Hôm nay</div>
+                                @foreach (var chat in chatsToday)
+                                {
+                                    <button class="list-group-item list-group-item-action" @onclick="() => LoadChat(chat.Id)">
+                                        <i class="oi oi-chat me-2"></i>
+                                        @(chat.Title.Length > 20 ? chat.Title.Substring(0, 20) + "..." : chat.Title)
+                                    </button>
+                                }
+                                <div class="list-group-item bg-light fw-bold">Tuần trước</div>
+                                @foreach (var chat in chatsLast7Days)
+                                {
+                                    <button class="list-group-item list-group-item-action" @onclick="() => LoadChat(chat.Id)">
+                                        <i class="oi oi-chat me-2"></i>
+                                        @(chat.Title.Length > 20 ? chat.Title.Substring(0, 20) + "..." : chat.Title)
+                                    </button>
+                                }
+                                <div class="list-group-item bg-light fw-bold">Trước đó</div>
+                                @foreach (var chat in chatsOlder)
                                 {
                                     <button class="list-group-item list-group-item-action" @onclick="() => LoadChat(chat.Id)">
                                         <i class="oi oi-chat me-2"></i>
@@ -86,7 +117,7 @@ else
                 </div>
             </div>
 
-            <!-- Main Chat Area -->
+            <!-- Main Area (depends on tab) -->
             <div class="col-md-9 col-lg-10">
                 <div class="card shadow-sm h-100">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -94,6 +125,10 @@ else
                             <i class="oi oi-chat me-2"></i>
                             @(currentChat?.Title ?? "Cuộc trò chuyện mới")
                         </h5>
+                        @if (currentChat != null && !string.IsNullOrWhiteSpace(currentChat.Model))
+                        {
+                            <span class="badge bg-light text-dark">Model: @currentChat.Model</span>
+                        }
                         <div>
                             @if (currentChat != null)
                             {
@@ -110,55 +145,110 @@ else
                     </div>
                     
                     <div class="card-body d-flex flex-column" style="height: 70vh;">
-                        <!-- Chat Messages -->
-                        <div class="flex-grow-1 overflow-auto mb-3" style="min-height: 400px;">
-                            @if (currentChat?.Messages.Any() == true)
-                            {
-                                @foreach (var message in currentChat.Messages)
+                        @if (activeTab == Tab.Text)
+                        {
+                            <!-- Chat Messages -->
+                            <div class="flex-grow-1 overflow-auto mb-3" style="min-height: 400px;">
+                                @if (currentChat?.Messages.Any() == true)
                                 {
-                                    <div class="d-flex mb-3 @(message.IsUser ? "justify-content-end" : "justify-content-start")">
-                                        <div class="card @(message.IsUser ? "bg-primary text-white" : "bg-light")" style="max-width: 70%;">
-                                            <div class="card-body p-3">
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <i class="oi @(message.IsUser ? "oi-person" : "oi-robot") me-2"></i>
-                                                    <small>@(message.IsUser ? currentUser.Name : "AI Assistant")</small>
+                                    @foreach (var message in currentChat.Messages)
+                                    {
+                                        <div class="d-flex mb-3 @(message.IsUser ? "justify-content-end" : "justify-content-start")">
+                                            <div class="card @(message.IsUser ? "bg-primary text-white" : "bg-light")" style="max-width: 70%;">
+                                                <div class="card-body p-3">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i class="oi @(message.IsUser ? "oi-person" : "oi-robot") me-2"></i>
+                                                        <small>@(message.IsUser ? currentUser.Name : "AI Assistant")</small>
+                                                    </div>
+                                                    <p class="mb-0">@message.Content</p>
                                                 </div>
-                                                <p class="mb-0">@message.Content</p>
                                             </div>
                                         </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-center text-muted mt-5">
+                                        <i class="oi oi-chat text-muted" style="font-size: 3rem;"></i>
+                                        <h5 class="mt-3">Bắt đầu cuộc trò chuyện mới</h5>
+                                        <p>Hãy nhập câu hỏi của bạn bên dưới</p>
                                     </div>
                                 }
-                            }
-                            else
-                            {
-                                <div class="text-center text-muted mt-5">
-                                    <i class="oi oi-chat text-muted" style="font-size: 3rem;"></i>
-                                    <h5 class="mt-3">Bắt đầu cuộc trò chuyện mới</h5>
-                                    <p>Hãy nhập câu hỏi của bạn bên dưới</p>
-                                </div>
-                            }
-                        </div>
-
-                        <!-- Input Area -->
-                        <div class="border-top pt-3">
-                            <div class="input-group">
-                                <textarea class="form-control" rows="3" placeholder="Nhập câu hỏi của bạn..." 
-                                          @bind="newMessage" @onkeydown="HandleKeyDown"></textarea>
-                                <button class="btn btn-primary" @onclick="SendMessage" disabled="@(string.IsNullOrWhiteSpace(newMessage) || isSending)">
-                                    @if (isSending)
-                                    {
-                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                    }
-                                    <i class="oi oi-arrow-top me-2"></i>
-                                    Gửi
-                                </button>
                             </div>
-                        </div>
+
+                            <!-- Input Area -->
+                            <div class="border-top pt-3">
+                                <div class="input-group">
+                                    <textarea class="form-control" rows="3" placeholder="Nhập câu hỏi của bạn..." 
+                                              @bind="newMessage" @onkeydown="HandleKeyDown"></textarea>
+                                    <button class="btn btn-primary" @onclick="SendMessage" disabled="@(string.IsNullOrWhiteSpace(newMessage) || isSending)">
+                                        @if (isSending)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        }
+                                        <i class="oi oi-arrow-top me-2"></i>
+                                        Gửi
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                        else if (activeTab == Tab.Images)
+                        {
+                            <div class="flex-grow-1 overflow-auto mb-3" style="min-height: 400px;">
+                                <div class="text-center text-muted mt-5">
+                                    <i class="oi oi-image text-muted" style="font-size: 3rem;"></i>
+                                    <h5 class="mt-3">Trình xem Hình ảnh</h5>
+                                    <p>Chọn một cuộc trò chuyện ở thanh bên để xem nội dung đã tạo trước đó.</p>
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal: Tạo cuộc trò chuyện mới -->
+    @if (showNewChatModal)
+    {
+        <div class="modal fade show" style="display:block; background: rgba(0,0,0,0.5);" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Tạo cuộc trò chuyện mới</h5>
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="CloseNewChatModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Tiêu đề (tùy chọn)</label>
+                            <input class="form-control" @bind="newChatTitle" placeholder="Nhập tiêu đề" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nhà cung cấp</label>
+                            <select class="form-select" @bind="newChatProvider">
+                                <option value="dummy">Dummy</option>
+                                <option value="openai">OpenAI</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Model</label>
+                            <select class="form-select" @bind="newChatModel">
+                                @foreach (var m in AvailableModels)
+                                {
+                                    <option value="@m">@m</option>
+                                }
+                            </select>
+                            <small class="text-muted">Chọn model cho cuộc trò chuyện. Ví dụ: gpt-4o-mini (văn bản), gpt-image-1 (hình ảnh)</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" @onclick="CloseNewChatModal">Hủy</button>
+                        <button class="btn btn-primary" @onclick="CreateNewChat" disabled="string.IsNullOrWhiteSpace(newChatModel)">Tạo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 
 @code {
@@ -168,6 +258,9 @@ else
     private bool isSending = false;
     private ChatSession? currentChat;
     private List<ChatSession> chatHistory = new();
+    private IEnumerable<ChatSession> chatsToday => chatHistory.Where(c => c.CreatedAt.Date == DateTime.UtcNow.Date);
+    private IEnumerable<ChatSession> chatsLast7Days => chatHistory.Where(c => c.CreatedAt.Date < DateTime.UtcNow.Date && c.CreatedAt >= DateTime.UtcNow.AddDays(-7));
+    private IEnumerable<ChatSession> chatsOlder => chatHistory.Where(c => c.CreatedAt < DateTime.UtcNow.AddDays(-7));
 
     protected override async Task OnInitializedAsync()
     {
@@ -199,12 +292,23 @@ else
 
     private async Task LoadChatHistory()
     {
-        // TODO: Load chat history from API
-        chatHistory = new List<ChatSession>
+        try
         {
-            new ChatSession { Id = "1", Title = "Cuộc trò chuyện về AI", Messages = new List<ChatMessage>() },
-            new ChatSession { Id = "2", Title = "Hỏi về lập trình", Messages = new List<ChatMessage>() }
-        };
+            var list = await ChatApi.ListThreadsAsync(page: 1, pageSize: 100, order: "desc");
+            chatHistory = list?.Items
+                .OrderByDescending(i => i.UpdatedAt)
+                .Select(i => new ChatSession
+                {
+                    Id = i.ThreadId,
+                    Title = string.IsNullOrWhiteSpace(i.Title) ? "Cuộc trò chuyện" : i.Title,
+                    CreatedAt = i.CreatedAt
+                })
+                .ToList() ?? new List<ChatSession>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi tải lịch sử: {ex.Message}");
+        }
     }
 
     private async Task SendMessage()
@@ -217,14 +321,15 @@ else
 
         try
         {
-            // Create new chat if none exists
+            // Nếu chưa có chat, tạo tạm thời với model đã chọn (nếu có)
             if (currentChat == null)
             {
                 currentChat = new ChatSession
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Title = userMessage.Length > 30 ? userMessage.Substring(0, 30) + "..." : userMessage,
-                    Messages = new List<ChatMessage>()
+                    Title = string.IsNullOrWhiteSpace(newChatTitle) ? (userMessage.Length > 30 ? userMessage.Substring(0, 30) + "..." : userMessage) : newChatTitle!,
+                    Messages = new List<ChatMessage>(),
+                    Model = string.IsNullOrWhiteSpace(newChatModel) ? "gpt-4o-mini" : newChatModel
                 };
             }
 
@@ -237,17 +342,34 @@ else
                 Timestamp = DateTime.UtcNow
             });
 
-            // TODO: Call ChatGPT API here
-            await Task.Delay(1000); // Simulate API call
-
-            // Add AI response
-            currentChat.Messages.Add(new ChatMessage
+            // If no thread on server, create one
+            if (string.IsNullOrWhiteSpace(serverThreadId))
             {
-                Id = Guid.NewGuid().ToString(),
-                Content = "Đây là phản hồi từ AI. Tính năng này sẽ được implement sau.",
-                IsUser = false,
-                Timestamp = DateTime.UtcNow
-            });
+                var create = await ChatApi.CreateThreadAsync(new CreateThreadRequest(
+                    UserId: currentUser!.Id,
+                    UserName: currentUser!.Name,
+                    Provider: string.IsNullOrWhiteSpace(newChatProvider) ? "dummy" : newChatProvider,
+                    Model: string.IsNullOrWhiteSpace(currentChat.Model) ? "gpt-4o-mini" : currentChat.Model!,
+                    Title: currentChat.Title));
+                serverThreadId = create?.ThreadId ?? string.Empty;
+            }
+
+            var resp = await ChatApi.SendMessageAsync(serverThreadId!, new SendMessageRequest(
+                UserId: currentUser!.Id,
+                Content: userMessage,
+                Metadata: null,
+                Stream: false));
+
+            if (resp != null)
+            {
+                currentChat.Messages.Add(new ChatMessage
+                {
+                    Id = resp.AssistantMessage.MessageId,
+                    Content = resp.AssistantMessage.Content,
+                    IsUser = false,
+                    Timestamp = resp.UpdatedAt
+                });
+            }
 
             StateHasChanged();
         }
@@ -272,7 +394,114 @@ else
 
     private void LoadChat(string chatId)
     {
-        currentChat = chatHistory.FirstOrDefault(c => c.Id == chatId);
+        _ = LoadThread(chatId);
+    }
+
+    private string? serverThreadId;
+
+    private async Task LoadThread(string threadId)
+    {
+        try
+        {
+            var data = await ChatApi.GetThreadAsync(threadId, page: 1, pageSize: 200, order: "asc");
+            if (data == null) return;
+
+            serverThreadId = data.Thread.ThreadId;
+            currentChat = new ChatSession
+            {
+                Id = data.Thread.ThreadId,
+                Title = data.Thread.Title,
+                Model = data.Thread.Model,
+                Messages = data.Messages.Select(m => new ChatMessage
+                {
+                    Id = m.MessageId,
+                    Content = m.Content,
+                    IsUser = string.Equals(m.Role, "user", StringComparison.OrdinalIgnoreCase),
+                    Timestamp = m.CreatedAt
+                }).ToList()
+            };
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi tải thread: {ex.Message}");
+        }
+    }
+
+    // Tabs & New Chat Modal state
+    private enum Tab { Text, Images }
+    private Tab activeTab = Tab.Text;
+    private bool showNewChatModal = false;
+    private string newChatProvider = "dummy";
+    private string newChatModel = "gpt-4o-mini";
+    private string? newChatTitle;
+    private IReadOnlyList<string> AvailableModels => new List<string>
+    {
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-image-1"
+    };
+
+    private void OpenNewChatModal()
+    {
+        newChatProvider = "dummy";
+        newChatModel = "gpt-4o-mini";
+        newChatTitle = string.Empty;
+        showNewChatModal = true;
+    }
+
+    private void CloseNewChatModal()
+    {
+        showNewChatModal = false;
+    }
+
+    private async Task CreateNewChat()
+    {
+        try
+        {
+            if (currentUser == null) return;
+
+            var create = await ChatApi.CreateThreadAsync(new CreateThreadRequest(
+                UserId: currentUser.Id,
+                UserName: currentUser.Name,
+                Provider: string.IsNullOrWhiteSpace(newChatProvider) ? "dummy" : newChatProvider,
+                Model: string.IsNullOrWhiteSpace(newChatModel) ? "gpt-4o-mini" : newChatModel,
+                Title: string.IsNullOrWhiteSpace(newChatTitle) ? "Cuộc trò chuyện" : newChatTitle
+            ));
+
+            if (create != null)
+            {
+                serverThreadId = create.ThreadId;
+                currentChat = new ChatSession
+                {
+                    Id = create.ThreadId,
+                    Title = create.Title,
+                    Model = create.Model,
+                    Messages = new List<ChatMessage>()
+                };
+
+                if (!chatHistory.Any(c => c.Id == create.ThreadId))
+                {
+                    chatHistory.Insert(0, new ChatSession
+                    {
+                        Id = create.ThreadId,
+                        Title = create.Title,
+                        CreatedAt = create.CreatedAt
+                    });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi tạo cuộc trò chuyện: {ex.Message}");
+        }
+        finally
+        {
+            showNewChatModal = false;
+            StateHasChanged();
+        }
     }
 
     private async Task SaveChat()
@@ -305,6 +534,7 @@ else
     {
         public string Id { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
+        public string? Model { get; set; }
         public List<ChatMessage> Messages { get; set; } = new();
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: chatgpt-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: chatgpt-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  chatgpt-api:
+    build:
+      context: .
+      dockerfile: ChatGPT.API/Dockerfile
+    container_name: chatgpt-api
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Mongo=mongodb://mongo:27017
+      - MongoDatabase=chatgpt_service
+      # Add provider keys via secrets or env later: OPENAI_API_KEY, DEEPSEEK_API_KEY
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+      - rabbitmq
+
+volumes:
+  mongo_data:
+
+

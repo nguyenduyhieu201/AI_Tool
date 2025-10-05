@@ -81,6 +81,7 @@ namespace Users.Application.Contracts.Authentication.Strategies
         {
             try
             {
+                var truee = await _googleAuthService.ValidateTokenAsync(token); 
                 return await _googleAuthService.ValidateTokenAsync(token);
             }
             catch (Exception ex)

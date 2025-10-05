@@ -1,0 +1,94 @@
+@page "/register"
+@using System.ComponentModel.DataAnnotations
+@inject ChatGPTTool.Services.IAuthService AuthService
+@inject NavigationManager Nav
+ 
+<EditForm Model="vm" OnValidSubmit="RegisterUser">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="login-card">
+        <h3>Đăng ký</h3>
+        <div class="mb-3">
+            <label>Họ</label>
+            <InputText class="form-control" @bind-Value="vm.LastName" />
+            <ValidationMessage For="@(() => vm.LastName)" />
+        </div>
+        <div class="mb-3">
+            <label>Tên</label>
+            <InputText class="form-control" @bind-Value="vm.FirstName" />
+            <ValidationMessage For="@(() => vm.FirstName)" />
+        </div>
+        <div class="mb-3">
+            <label>Email</label>
+            <InputText class="form-control" @bind-Value="vm.Email" />
+            <ValidationMessage For="@(() => vm.Email)" />
+        </div>
+        <div class="mb-3">
+            <label>Mật khẩu</label>
+            <InputText type="password" class="form-control" @bind-Value="vm.Password" />
+            <ValidationMessage For="@(() => vm.Password)" />
+        </div>
+        <div class="mb-3">
+            <label>Xác nhận mật khẩu</label>
+            <InputText type="password" class="form-control" @bind-Value="vm.ConfirmPassword" />
+            <ValidationMessage For="@(() => vm.ConfirmPassword)" />
+        </div>
+        <div class="mb-3">
+            <label>Số điện thoại</label>
+            <InputText class="form-control" @bind-Value="model.PhoneNumber" />
+        </div>
+        <button type="submit" class="btn btn-primary w-100" disabled="@submitting">@buttonText</button>
+        <div class="mt-2 text-muted">@statusMessage</div>
+    </div>
+</EditForm>
+
+@code {
+    private ChatGPTTool.Services.RegisterRequest model = new();
+    private RegisterViewModel vm = new();
+    private bool submitting = false;
+    private string buttonText = "Đăng ký";
+    private string statusMessage = string.Empty;
+
+    private async Task RegisterUser()
+    {
+        submitting = true;
+        buttonText = "Đang xử lý...";
+        // Map validated VM -> API request
+        model.FirstName = vm.FirstName;
+        model.LastName = vm.LastName;
+        model.Email = vm.Email;
+        model.Password = vm.Password;
+        var ok = await AuthService.RegisterAsync(model);
+        submitting = false;
+        buttonText = ok ? "Thành công" : "Đăng ký";
+        statusMessage = ok ? "Tạo tài khoản và đăng nhập thành công." : "Đăng ký thất bại. Vui lòng kiểm tra thông tin.";
+        if (ok)
+        {
+            Nav.NavigateTo("/");
+        }
+    }
+
+    public class RegisterViewModel
+    {
+        [Required]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        [MinLength(8)]
+        public string Password { get; set; } = string.Empty;
+
+        [Required]
+        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+}
+
+

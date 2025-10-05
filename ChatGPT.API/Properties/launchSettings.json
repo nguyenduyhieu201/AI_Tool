@@ -1,0 +1,27 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "composeProfile": {
+        "include": [
+          "chatgpt-api",
+          "mongo",
+          "rabbitmq"
+        ]
+      },
+      "commandVersion": "1.0"
+    },
+    "ChatGPT.API": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionStrings__Mongo": "mongodb://localhost:27017",
+        "MongoDatabase": "chatgpt_service"
+      }
+    }
+  }
+}

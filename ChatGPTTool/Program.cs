@@ -10,24 +10,38 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddControllers(); // Th�m controllers
+builder.Services.AddControllers(); // Thêm controllers
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddScoped<IIPService, IPService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// Add HttpClient for API calls
+// Add Google OAuth Service
+builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+
+
+
+// Add HttpInterceptor
+builder.Services.AddTransient<HttpInterceptor>();
+
+// Add HttpClient for API calls with interceptor
 builder.Services.AddHttpClient("API", client =>
 {
     var inContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-    var apiBaseUrl = inContainer ? "http://nginx" : "http://localhost:5010"; // dev local d�ng 5010 (nginx)
+    var apiBaseUrl = inContainer ? "http://nginx" : "http://localhost:5001"; // Users.API port
     client.BaseAddress = new Uri(apiBaseUrl);
-});
+})
+.AddHttpMessageHandler<HttpInterceptor>(); // Thêm interceptor
 
-// Add AuthService
-builder.Services.AddScoped<IAuthService, AuthService>();
+// HttpClient to Gateway (Nginx) for ChatGPT.API
+builder.Services.AddHttpClient("Gateway", client =>
+{
+    var inContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    var gatewayBaseUrl = inContainer ? "http://nginx" : "http://localhost:5010"; // Nginx gateway
+    client.BaseAddress = new Uri(gatewayBaseUrl);
+})
+.AddHttpMessageHandler<HttpInterceptor>();
 
-// Add Google OAuth Service
-builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+builder.Services.AddScoped<IChatApiClient, ChatApiClient>();
 
 var app = builder.Build();
 
@@ -45,7 +59,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.MapControllers(); // Th�m route cho controllers
+app.MapControllers(); // Thêm route cho controllers
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 

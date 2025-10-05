@@ -19,7 +19,7 @@
                         <i class="oi oi-account-login me-2"></i>
                         Đăng nhập
                     </h4>
-                </div>
+                </div>ă
                 <div class="card-body">
                     @if (!string.IsNullOrEmpty(errorMessage))
                     {
@@ -93,7 +93,11 @@
                     <div class="text-center">
                         <small class="text-muted">
                             Chưa có tài khoản?
-                            <a href="#" class="text-decoration-none">Đăng ký ngay</a>
+                            <a href="/register" class="text-decoration-none">Đăng ký ngay</a>
+                        </small>
+                        <br />
+                        <small class="text-muted">
+                            <a href="/forgot-password" class="text-decoration-none">Quên mật khẩu?</a>
                         </small>
                     </div>
                 </div>
@@ -138,9 +142,17 @@
         {
             handledJwt = true;
             var jwt = jwtVals.ToString();
+            var refreshToken = "";
+            
+            // Lấy refresh token nếu có
+            if (query.TryGetValue("refreshToken", out var refreshTokenVals))
+            {
+                refreshToken = refreshTokenVals.ToString();
+            }
+            
             if (!string.IsNullOrEmpty(jwt))
             {
-                await AuthService.SignInWithTokenAsync(jwt);
+                await AuthService.SignInWithTokenAsync(jwt, refreshToken);
                 // Làm sạch URL và điều hướng về trang chủ
                 var clean = uri.GetLeftPart(UriPartial.Path);
                 Navigation.NavigateTo(clean, forceLoad: false);
